@@ -1,0 +1,9 @@
+[
+  { "key": "brand_name", "name": "Brand Name" },
+  { "key": "support_email", "name": "Support Email" },
+  { "key": "company_phone", "name": "Company Phone" },
+  { "key": "company_address", "name": "Company Address" },
+  { "key": "timezone", "name": "Timezone" },
+  { "key": "locale", "name": "Locale" }
+]
+
