@@ -58,7 +58,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->roles->contains(fn (Role $role) => $role->slug === 'admin')) {
+        if ($this->roles->contains(fn (Role $role) => in_array($role->slug, ['admin', 'super-admin'], true))) {
             return true;
         }
 
@@ -76,7 +76,7 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->hasRole('admin') || $this->hasRole('project-manager')) {
+        if ($this->hasRole('admin') || $this->hasRole('super-admin') || $this->hasRole('project-manager') || $this->hasRole('manager')) {
             return true;
         }
 

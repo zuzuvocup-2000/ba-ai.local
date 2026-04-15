@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://ba-ai.local/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://ba-ai.local/api/v1/admin'
 const SESSION_KEY = 'ba_ai_admin_session'
 
 export const getSession = () => {

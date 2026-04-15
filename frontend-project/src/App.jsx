@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://ba-ai.local/api/v1'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://ba-ai.local/api/v1/user'
 
 function formatError(errorPayload) {
   if (typeof errorPayload === 'string' && errorPayload) {
