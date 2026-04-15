@@ -32,6 +32,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+php artisan db:seed
 ```
 
 Default DB values in `.env.example` are:
@@ -72,3 +73,16 @@ php artisan serve
 
 - OpenServer domain: [http://ba-ai.local](http://ba-ai.local)
 - Frontend dev server: [http://localhost:5173](http://localhost:5173)
+
+## Admin login (seed default)
+
+- Email: `admin@ba-ai.local`
+- Password: `Admin@123`
+
+## API versioning
+
+- Base API path: `http://ba-ai.local/api/v1`
+
+## Engineering checklists
+
+- Backend/Frontend prompt checklist: `docs/ai-code-checklists.md`
