@@ -37,6 +37,10 @@ export const apiRequest = async (path, token = '', options = {}) => {
     throw new Error(data.message ?? 'Có lỗi xảy ra khi gọi API.')
   }
 
+  if (typeof data === 'object' && data !== null && 'data' in data) {
+    return data.data
+  }
+
   return data
 }
 

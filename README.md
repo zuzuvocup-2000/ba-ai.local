@@ -46,6 +46,10 @@ Default DB values in `.env.example` are:
 
 Adjust these values in `backend/.env` if your local services use different credentials.
 
+CORS defaults for frontend are configured via:
+
+- `CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://ba-ai.local`
+
 ## 3) Setup frontend
 
 ```bash

@@ -15,6 +15,7 @@ Goal:
 Required standards:
 1) API design
 - Use RESTful endpoints and consistent response envelopes.
+- Version all API URIs with `/api/v1/...`.
 - Return proper HTTP status codes and clear error messages.
 
 2) Validation and security
@@ -22,6 +23,7 @@ Required standards:
 - Never trust client payload for authorization-sensitive fields.
 - Hash passwords and protect secrets.
 - Use token-based auth for API endpoints.
+- Configure CORS for frontend domains and verify preflight `OPTIONS` requests pass.
 
 3) Authorization
 - Enforce RBAC with middleware/policies.
@@ -34,12 +36,18 @@ Required standards:
 
 5) Code quality
 - Keep controllers thin, business rules explicit, and method names intention-revealing.
+- Use layered architecture:
+  - `Http/Controllers` for transport only
+  - `Services` for business logic
+  - `Repositories` for data access
+  - `Helpers` (or Resources) for reusable formatting utilities
 - Prefer small, composable classes and clear typing.
 - Add tests for critical auth/permission flows.
 
 6) Operational readiness
 - Provide setup instructions and default credentials only in docs/examples.
 - Keep logs useful and avoid exposing sensitive data in responses.
+- Keep environment-driven config in `.env.example` (API URL, CORS, DB, etc.).
 
 Output expectations:
 - Files changed list.
@@ -59,7 +67,7 @@ Goal:
 
 Required standards:
 1) UI architecture
-- Organize code by feature (auth, users, roles, shared UI).
+- Organize code by feature (auth, users, roles, shared UI/components).
 - Keep components focused and reusable.
 - Ensure responsive layout for desktop/tablet.
 
@@ -72,15 +80,17 @@ Required standards:
 - Centralize API calls in a dedicated module.
 - Persist auth token securely in client storage for this stage.
 - Handle 401/403 globally with graceful redirect/feedback.
+- Parse backend response envelope consistently (`success`, `message`, `data`).
 
 4) Authorization in UI
 - Render/disable actions based on backend permissions.
 - Never rely on UI permission checks as the only protection.
 
 5) Styling and design system
-- Use a consistent spacing/typography/color scale.
-- Keep a clean light theme with modern cards, tables, and navigation.
-- Avoid hard-coded one-off styles where reusable classes/tokens can be used.
+- Use Tailwind CSS + shadcn-style component patterns.
+- Keep a consistent spacing/typography/color scale.
+- Keep a clean light theme with modern sidebar/topbar/cards/tables/forms.
+- Avoid one-off CSS when reusable utility classes/components can be used.
 
 6) Delivery quality
 - Ensure lint/build pass.
