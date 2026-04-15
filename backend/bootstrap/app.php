@@ -6,6 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\HandleCors;
 use App\Http\Middleware\AuthenticateApiToken;
 use App\Http\Middleware\CheckPermission;
+use App\Helpers\MongoLogHelper;
+use App\Http\Middleware\LogApiAccess;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(HandleCors::class);
+        $middleware->append(LogApiAccess::class);
 
         $middleware->alias([
             'auth.token' => AuthenticateApiToken::class,
@@ -23,5 +26,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->report(function (\Throwable $exception) {
+            MongoLogHelper::error([
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => substr($exception->getTraceAsString(), 0, 4000),
+            ]);
+        });
     })->create();

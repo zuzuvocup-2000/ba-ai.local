@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Helpers\ApiResponse;
+use App\Helpers\MongoLogHelper;
 use App\Helpers\SettingHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSettingsRequest;
@@ -49,6 +50,12 @@ class SettingController extends Controller
         foreach ($items as $item) {
             SettingHelper::forget($item['key']);
         }
+
+        MongoLogHelper::action([
+            'action' => 'settings.updateMany',
+            'actor_id' => request()->user()?->id,
+            'keys' => array_map(fn ($item) => $item['key'], $items),
+        ]);
 
         return ApiResponse::success(null, 'Settings updated successfully.');
     }

@@ -22,6 +22,7 @@ class RolePermissionSeeder extends Seeder
             'users.delete' => 'Delete users',
             'settings.view' => 'View settings',
             'settings.edit' => 'Edit settings',
+            'logs.view' => 'View logs',
         ];
 
         $permissions = collect($permissionMap)->map(function (string $name, string $slug) {
@@ -43,7 +44,7 @@ class RolePermissionSeeder extends Seeder
 
         $superAdmin->permissions()->sync($permissions->pluck('id'));
         $manager->permissions()->sync(
-            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view'])->pluck('id')
+            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view'])->pluck('id')
         );
 
         $adminUser = User::query()->updateOrCreate(

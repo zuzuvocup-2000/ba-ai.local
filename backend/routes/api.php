@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\LogController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -29,6 +30,10 @@ Route::prefix('v1')->group(function () {
 
         Route::put('/settings', [SettingController::class, 'updateMany'])
             ->defaults('permission', 'settings.edit')
+            ->middleware('permission');
+
+        Route::get('/logs/{type}', [LogController::class, 'index'])
+            ->defaults('permission', 'logs.view')
             ->middleware('permission');
 
         Route::get('/users', [UserController::class, 'index'])

@@ -7,6 +7,7 @@ use App\Repositories\RoleRepository;
 use App\Repositories\SettingRepository;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
+use App\Services\MongoLogService;
 use App\Services\RoleService;
 use App\Services\SettingService;
 use App\Services\UserService;
@@ -28,6 +29,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(UserService::class);
         $this->app->singleton(RoleService::class);
         $this->app->singleton(SettingService::class);
+        $this->app->singleton(MongoLogService::class);
     }
 
     /**
