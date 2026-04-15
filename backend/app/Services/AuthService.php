@@ -16,7 +16,7 @@ class AuthService
     ) {
     }
 
-    public function login(string $email, string $password): ?array
+    public function login(string $email, string $password, string $system): ?array
     {
         $user = $this->userRepository->findByEmail($email);
 
@@ -24,11 +24,22 @@ class AuthService
             return null;
         }
 
+        if (! $user->canAccessSystem($system)) {
+            return [
+                'forbidden' => true,
+                'message' => 'Your account cannot access this system.',
+            ];
+        }
+
         $plainToken = Str::random(60);
-        $this->apiTokenRepository->createForUser($user, $plainToken, $user->permissionSlugs());
+        $this->apiTokenRepository->createForUser($user, $plainToken, array_merge(
+            $user->permissionSlugs(),
+            ["system:{$system}"]
+        ));
 
         return [
             'token' => $plainToken,
+            'system' => $system,
             'user' => UserDataHelper::toArray($user),
         ];
     }

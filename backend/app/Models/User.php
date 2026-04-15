@@ -53,10 +53,32 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->roles->contains(fn (Role $role) => $role->slug === 'super-admin')) {
+        if ($this->roles->contains(fn (Role $role) => $role->slug === 'admin')) {
             return true;
         }
 
         return in_array($permission, $this->permissionSlugs(), true);
+    }
+
+    public function hasRole(string $roleSlug): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->slug === $roleSlug);
+    }
+
+    public function canAccessSystem(string $system): bool
+    {
+        if (in_array($system, ['admin', 'project'], true) === false) {
+            return false;
+        }
+
+        if ($this->hasRole('admin') || $this->hasRole('project-manager')) {
+            return true;
+        }
+
+        if ($system === 'project' && ($this->hasRole('ba') || $this->hasRole('dev'))) {
+            return true;
+        }
+
+        return false;
     }
 }

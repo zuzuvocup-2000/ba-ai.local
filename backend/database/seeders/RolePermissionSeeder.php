@@ -32,20 +32,32 @@ class RolePermissionSeeder extends Seeder
             );
         });
 
-        $superAdmin = Role::query()->updateOrCreate(
-            ['slug' => 'super-admin'],
-            ['name' => 'Super Admin']
+        $admin = Role::query()->updateOrCreate(
+            ['slug' => 'admin'],
+            ['name' => 'Admin']
         );
 
-        $manager = Role::query()->updateOrCreate(
-            ['slug' => 'manager'],
-            ['name' => 'Manager']
+        $projectManager = Role::query()->updateOrCreate(
+            ['slug' => 'project-manager'],
+            ['name' => 'Project Manager']
         );
 
-        $superAdmin->permissions()->sync($permissions->pluck('id'));
-        $manager->permissions()->sync(
+        $ba = Role::query()->updateOrCreate(
+            ['slug' => 'ba'],
+            ['name' => 'BA']
+        );
+
+        $dev = Role::query()->updateOrCreate(
+            ['slug' => 'dev'],
+            ['name' => 'Dev']
+        );
+
+        $admin->permissions()->sync($permissions->pluck('id'));
+        $projectManager->permissions()->sync(
             $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view'])->pluck('id')
         );
+        $ba->permissions()->sync($permissions->whereIn('slug', ['logs.view'])->pluck('id'));
+        $dev->permissions()->sync($permissions->whereIn('slug', ['logs.view'])->pluck('id'));
 
         $adminUser = User::query()->updateOrCreate(
             ['email' => 'admin@ba-ai.local'],
@@ -55,6 +67,33 @@ class RolePermissionSeeder extends Seeder
             ]
         );
 
-        $adminUser->roles()->syncWithoutDetaching([$superAdmin->id]);
+        $projectManagerUser = User::query()->updateOrCreate(
+            ['email' => 'pm@ba-ai.local'],
+            [
+                'name' => 'Project Manager',
+                'password' => Hash::make('Pm@123456'),
+            ]
+        );
+
+        $baUser = User::query()->updateOrCreate(
+            ['email' => 'ba@ba-ai.local'],
+            [
+                'name' => 'Business Analyst',
+                'password' => Hash::make('Ba@123456'),
+            ]
+        );
+
+        $devUser = User::query()->updateOrCreate(
+            ['email' => 'dev@ba-ai.local'],
+            [
+                'name' => 'Developer',
+                'password' => Hash::make('Dev@123456'),
+            ]
+        );
+
+        $adminUser->roles()->syncWithoutDetaching([$admin->id]);
+        $projectManagerUser->roles()->syncWithoutDetaching([$projectManager->id]);
+        $baUser->roles()->syncWithoutDetaching([$ba->id]);
+        $devUser->roles()->syncWithoutDetaching([$dev->id]);
     }
 }

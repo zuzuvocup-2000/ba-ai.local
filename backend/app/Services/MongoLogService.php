@@ -38,10 +38,18 @@ class MongoLogService
         }
     }
 
-    public function list(string $type, int $limit = 50): array
+    public function list(string $type, int $page = 1, int $perPage = 20, ?string $search = null): array
     {
         if (! $this->isAvailable()) {
-            return [];
+            return [
+                'items' => [],
+                'meta' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'total_pages' => 0,
+                ],
+            ];
         }
 
         try {
@@ -49,9 +57,29 @@ class MongoLogService
             $queryClass = '\MongoDB\Driver\Query';
 
             $manager = new $managerClass((string) env('MONGODB_URI'));
+            $filter = ['type' => $type];
+
+            if ($search !== null && trim($search) !== '') {
+                $filter['$or'] = [
+                    ['payload.action' => ['$regex' => $search, '$options' => 'i']],
+                    ['payload.email' => ['$regex' => $search, '$options' => 'i']],
+                    ['payload.path' => ['$regex' => $search, '$options' => 'i']],
+                    ['payload.user_agent' => ['$regex' => $search, '$options' => 'i']],
+                ];
+            }
+
+            $countQuery = new $queryClass($filter, ['projection' => ['_id' => 1]]);
+            $countCursor = $manager->executeQuery($this->getNamespace(), $countQuery);
+            $total = 0;
+
+            foreach ($countCursor as $unusedDoc) {
+                $total++;
+            }
+
+            $skip = max(0, ($page - 1) * $perPage);
             $query = new $queryClass(
-                ['type' => $type],
-                ['sort' => ['created_at' => -1], 'limit' => $limit]
+                $filter,
+                ['sort' => ['created_at' => -1], 'skip' => $skip, 'limit' => $perPage]
             );
 
             $cursor = $manager->executeQuery($this->getNamespace(), $query);
@@ -61,9 +89,25 @@ class MongoLogService
                 $items[] = json_decode(json_encode($doc, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
             }
 
-            return $items;
+            return [
+                'items' => $items,
+                'meta' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'total_pages' => (int) ceil($total / max($perPage, 1)),
+                ],
+            ];
         } catch (Throwable) {
-            return [];
+            return [
+                'items' => [],
+                'meta' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'total_pages' => 0,
+                ],
+            ];
         }
     }
 

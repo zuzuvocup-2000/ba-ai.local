@@ -16,14 +16,19 @@ class MongoLogHelper
         app(MongoLogService::class)->write('action', $payload);
     }
 
+    public static function login(array $payload): void
+    {
+        app(MongoLogService::class)->write('login', $payload);
+    }
+
     public static function error(array $payload): void
     {
         app(MongoLogService::class)->write('error', $payload);
     }
 
-    public static function list(string $type, int $limit = 50): array
+    public static function list(string $type, int $page = 1, int $perPage = 20, ?string $search = null): array
     {
-        return app(MongoLogService::class)->list($type, $limit);
+        return app(MongoLogService::class)->list($type, $page, $perPage, $search);
     }
 }
 
