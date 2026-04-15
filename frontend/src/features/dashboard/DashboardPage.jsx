@@ -24,7 +24,7 @@ export function DashboardPage({
       <div className="pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 top-40 h-72 w-72 rounded-full bg-cyan-200/40 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-[1460px] grid-cols-1 gap-6 p-6 lg:grid-cols-[280px,1fr] lg:p-8">
+      <div className="relative mx-auto grid max-w-[1460px] grid-cols-1 gap-6 p-6 lg:grid-cols-[280px_1fr] lg:p-8">
         <DashboardSidebar user={user} />
 
         <section className="space-y-6">
@@ -38,7 +38,7 @@ export function DashboardPage({
             totalPermissions={user.permissions.length}
           />
 
-          <div className="grid gap-6 2xl:grid-cols-[430px,1fr]">
+          <div className="grid gap-6 2xl:grid-cols-[430px_1fr]">
             <UserFormCard
               roles={roles}
               userForm={userForm}

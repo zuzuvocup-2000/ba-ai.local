@@ -28,7 +28,7 @@ export function UsersPage({
 
       {error && <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
 
-      <div className="grid gap-6 2xl:grid-cols-[430px,1fr]">
+      <div className="grid gap-6 2xl:grid-cols-[430px_1fr]">
         <UserFormCard
           roles={roles}
           userForm={userForm}

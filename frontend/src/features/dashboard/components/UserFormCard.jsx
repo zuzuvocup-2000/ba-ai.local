@@ -2,6 +2,7 @@ import { UserCog } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
+import { Select2 } from '../../../components/ui/select2'
 
 export function UserFormCard({
   roles,
@@ -13,6 +14,9 @@ export function UserFormCard({
   onSubmit,
   onReset,
 }) {
+  const roleOptions = roles.map((role) => ({ value: role.id, label: role.name }))
+  const selectedRoleOptions = roleOptions.filter((option) => userForm.role_ids.includes(option.value))
+
   return (
     <Card className="p-6">
       <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-900">
@@ -21,23 +25,25 @@ export function UserFormCard({
       <p className="mb-5 text-sm text-slate-500">Tạo mới hoặc cập nhật tài khoản.</p>
 
       <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-600">Họ tên</label>
-          <Input
-            value={userForm.name}
-            onChange={(event) => setUserForm({ ...userForm, name: event.target.value })}
-            required
-          />
-        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-600">Họ tên</label>
+            <Input
+              value={userForm.name}
+              onChange={(event) => setUserForm({ ...userForm, name: event.target.value })}
+              required
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-600">Email</label>
-          <Input
-            type="email"
-            value={userForm.email}
-            onChange={(event) => setUserForm({ ...userForm, email: event.target.value })}
-            required
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-600">Email</label>
+            <Input
+              type="email"
+              value={userForm.email}
+              onChange={(event) => setUserForm({ ...userForm, email: event.target.value })}
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -53,26 +59,31 @@ export function UserFormCard({
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-600">Vai trò</label>
-          <select
-            className="min-h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-sm outline-none focus-visible:border-indigo-300 focus-visible:ring-2 focus-visible:ring-indigo-500/30"
-            multiple
-            value={userForm.role_ids}
-            onChange={(event) => {
-              const selectedValues = Array.from(event.target.selectedOptions).map((option) => Number(option.value))
+          <Select2
+            isMulti
+            options={roleOptions}
+            value={selectedRoleOptions}
+            onChange={(selectedOptions) => {
+              const selectedValues = (selectedOptions ?? []).map((option) => Number(option.value))
               setUserForm({ ...userForm, role_ids: selectedValues })
             }}
-            required
-          >
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>
-                {role.name}
-              </option>
-            ))}
-          </select>
+            placeholder="Chọn vai trò..."
+          />
+          {!userForm.role_ids.length && (
+            <p className="text-xs text-slate-400">Bạn cần chọn ít nhất 1 vai trò.</p>
+          )}
         </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button type="submit" disabled={loading || (!canCreate && !userForm.id) || (!canEdit && !!userForm.id)}>
+        <div className="flex gap-2 border-t border-slate-100 pt-4">
+          <Button
+            type="submit"
+            disabled={
+              loading ||
+              !userForm.role_ids.length ||
+              (!canCreate && !userForm.id) ||
+              (!canEdit && !!userForm.id)
+            }
+          >
             {userForm.id ? 'Cập nhật' : 'Tạo user'}
           </Button>
           <Button type="button" variant="secondary" onClick={onReset}>

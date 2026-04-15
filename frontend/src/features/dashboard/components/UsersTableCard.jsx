@@ -4,6 +4,14 @@ import { Button } from '../../../components/ui/button'
 import { Card } from '../../../components/ui/card'
 
 export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) {
+  const getInitials = (name) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('')
+
   return (
     <Card className="p-6">
       <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-900">
@@ -11,9 +19,9 @@ export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) 
       </h3>
       <p className="mb-4 text-sm text-slate-500">Danh sách tài khoản và quyền hiện tại.</p>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-slate-100">
         <table className="w-full text-left text-sm">
-          <thead className="text-xs uppercase tracking-wide text-slate-400">
+          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
             <tr className="border-b border-slate-200">
               <th className="px-3 py-3">Tên</th>
               <th className="px-3 py-3">Email</th>
@@ -25,7 +33,14 @@ export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) 
           <tbody>
             {users.map((item) => (
               <tr key={item.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50/80 last:border-b-0">
-                <td className="px-3 py-3 font-medium">{item.name}</td>
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-sky-100 text-xs font-semibold text-indigo-700">
+                      {getInitials(item.name)}
+                    </span>
+                    <span className="font-medium text-slate-800">{item.name}</span>
+                  </div>
+                </td>
                 <td className="px-3 py-3 text-slate-600">{item.email}</td>
                 <td className="px-3 py-3">
                   <div className="flex flex-wrap gap-1.5">

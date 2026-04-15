@@ -27,6 +27,20 @@ export function OverviewPage({ user, users, roles, onLogout, error }) {
             Dashboard này đã tách route theo module: overview, users và roles. Bạn có thể mở rộng thêm audit logs, reports
             hoặc settings mà không cần sửa cấu trúc tổng.
           </p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-slate-50 p-3 text-center">
+              <p className="text-xs text-slate-400">Users</p>
+              <p className="mt-1 text-lg font-semibold text-slate-800">{users.length}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-3 text-center">
+              <p className="text-xs text-slate-400">Roles</p>
+              <p className="mt-1 text-lg font-semibold text-slate-800">{roles.length}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-3 text-center">
+              <p className="text-xs text-slate-400">Permissions</p>
+              <p className="mt-1 text-lg font-semibold text-slate-800">{user.permissions.length}</p>
+            </div>
+          </div>
         </Card>
         <Card className="p-6">
           <h3 className="text-base font-semibold text-slate-900">Current Account</h3>
