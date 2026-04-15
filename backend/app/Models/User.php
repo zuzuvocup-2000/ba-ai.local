@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_user');
+    }
+
     public function apiTokens(): HasMany
     {
         return $this->hasMany(ApiToken::class);

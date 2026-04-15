@@ -29,7 +29,7 @@ class UserService
             'password' => Hash::make($payload['password']),
         ]);
 
-        $user->roles()->sync($payload['role_ids']);
+        $user->roles()->sync([$payload['role_id']]);
         $user->load('roles.permissions');
 
         return $user;
@@ -47,7 +47,7 @@ class UserService
         }
 
         $this->userRepository->update($user, $data);
-        $user->roles()->sync($payload['role_ids']);
+        $user->roles()->sync([$payload['role_id']]);
         $user->load('roles.permissions');
 
         return $user;

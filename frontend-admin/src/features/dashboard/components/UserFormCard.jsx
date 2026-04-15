@@ -15,7 +15,7 @@ export function UserFormCard({
   onReset,
 }) {
   const roleOptions = roles.map((role) => ({ value: role.id, label: role.name }))
-  const selectedRoleOptions = roleOptions.filter((option) => userForm.role_ids.includes(option.value))
+  const selectedRoleOption = roleOptions.find((option) => option.value === userForm.role_id) ?? null
 
   return (
     <Card className="p-6">
@@ -60,17 +60,15 @@ export function UserFormCard({
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-600">Vai trò</label>
           <Select2
-            isMulti
             options={roleOptions}
-            value={selectedRoleOptions}
-            onChange={(selectedOptions) => {
-              const selectedValues = (selectedOptions ?? []).map((option) => Number(option.value))
-              setUserForm({ ...userForm, role_ids: selectedValues })
+            value={selectedRoleOption}
+            onChange={(selectedOption) => {
+              setUserForm({ ...userForm, role_id: selectedOption ? Number(selectedOption.value) : null })
             }}
-            placeholder="Chọn vai trò..."
+            placeholder="Chọn 1 vai trò..."
           />
-          {!userForm.role_ids.length && (
-            <p className="text-xs text-slate-400">Bạn cần chọn ít nhất 1 vai trò.</p>
+          {!userForm.role_id && (
+            <p className="text-xs text-slate-400">Mỗi tài khoản chỉ có 1 vai trò.</p>
           )}
         </div>
 
@@ -79,7 +77,7 @@ export function UserFormCard({
             type="submit"
             disabled={
               loading ||
-              !userForm.role_ids.length ||
+              !userForm.role_id ||
               (!canCreate && !userForm.id) ||
               (!canEdit && !!userForm.id)
             }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\LogController;
+use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -51,6 +52,26 @@ Route::prefix('v1')->group(function () {
 
         Route::delete('/users/{user}', [UserController::class, 'destroy'])
             ->defaults('permission', 'users.delete')
+            ->middleware('permission');
+
+        Route::get('/projects', [ProjectController::class, 'index'])
+            ->defaults('permission', 'projects.view')
+            ->middleware('permission');
+
+        Route::post('/projects', [ProjectController::class, 'store'])
+            ->defaults('permission', 'projects.create')
+            ->middleware('permission');
+
+        Route::put('/projects/{project}', [ProjectController::class, 'update'])
+            ->defaults('permission', 'projects.edit')
+            ->middleware('permission');
+
+        Route::put('/projects/{project}/members', [ProjectController::class, 'syncMembers'])
+            ->defaults('permission', 'projects.edit')
+            ->middleware('permission');
+
+        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
+            ->defaults('permission', 'projects.delete')
             ->middleware('permission');
     });
 

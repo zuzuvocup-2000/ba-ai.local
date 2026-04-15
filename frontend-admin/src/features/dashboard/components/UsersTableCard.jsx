@@ -43,11 +43,11 @@ export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) 
                 </td>
                 <td className="px-3 py-3 text-slate-600">{item.email}</td>
                 <td className="px-3 py-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {item.roles.map((role) => (
-                      <Badge key={role.id} className="bg-violet-50 text-violet-700">{role.name}</Badge>
-                    ))}
-                  </div>
+                  {item.roles[0] ? (
+                    <Badge className="bg-violet-50 text-violet-700">{item.roles[0].name}</Badge>
+                  ) : (
+                    <span className="text-xs text-slate-400">Chưa gán role</span>
+                  )}
                 </td>
                 <td className="px-3 py-3">
                   <div className="max-w-md text-xs leading-relaxed text-slate-500">{item.permissions.join(', ')}</div>

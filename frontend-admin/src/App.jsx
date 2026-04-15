@@ -4,13 +4,14 @@ import { apiRequest } from './api'
 import { AdminLayout } from './features/dashboard/layout/AdminLayout'
 import { OverviewPage } from './features/dashboard/pages/OverviewPage'
 import { LogListPage } from './features/logs/pages/LogListPage'
+import { ProjectsPage } from './features/projects/pages/ProjectsPage'
 import { RolesPage } from './features/roles/pages/RolesPage'
 import { GeneralSettingsPage } from './features/settings/pages/GeneralSettingsPage'
 import { UsersPage } from './features/users/pages/UsersPage'
 import { useAdminDashboard } from './hooks/useAdminDashboard'
 
 function App() {
-  const { auth, data, userForm } = useAdminDashboard()
+  const { auth, data, userForm, projectForm } = useAdminDashboard()
 
   const fetchSettings = async (token) => {
     return apiRequest('/settings', token)
@@ -89,6 +90,25 @@ function App() {
               onResetUserForm={userForm.resetUserForm}
               onEditUser={userForm.editUser}
               onDeleteUser={userForm.deleteUser}
+              error={data.error}
+            />
+          }
+        />
+        <Route
+          path="projects"
+          element={
+            <ProjectsPage
+              projects={data.projects}
+              users={data.users}
+              loading={data.loading}
+              can={data.can}
+              projectForm={projectForm.projectForm}
+              setProjectForm={projectForm.setProjectForm}
+              onSubmitProject={projectForm.submitProject}
+              onResetProjectForm={projectForm.resetProjectForm}
+              onEditProject={projectForm.editProject}
+              onDeleteProject={projectForm.deleteProject}
+              onSyncProjectMembers={projectForm.syncProjectMembers}
               error={data.error}
             />
           }

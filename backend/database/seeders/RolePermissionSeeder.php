@@ -23,6 +23,10 @@ class RolePermissionSeeder extends Seeder
             'settings.view' => 'View settings',
             'settings.edit' => 'Edit settings',
             'logs.view' => 'View logs',
+            'projects.view' => 'View projects',
+            'projects.create' => 'Create projects',
+            'projects.edit' => 'Edit projects',
+            'projects.delete' => 'Delete projects',
         ];
 
         $permissions = collect($permissionMap)->map(function (string $name, string $slug) {
@@ -54,10 +58,10 @@ class RolePermissionSeeder extends Seeder
 
         $admin->permissions()->sync($permissions->pluck('id'));
         $projectManager->permissions()->sync(
-            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view'])->pluck('id')
+            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view', 'projects.view', 'projects.create', 'projects.edit'])->pluck('id')
         );
-        $ba->permissions()->sync($permissions->whereIn('slug', ['logs.view'])->pluck('id'));
-        $dev->permissions()->sync($permissions->whereIn('slug', ['logs.view'])->pluck('id'));
+        $ba->permissions()->sync($permissions->whereIn('slug', ['logs.view', 'projects.view'])->pluck('id'));
+        $dev->permissions()->sync($permissions->whereIn('slug', ['logs.view', 'projects.view'])->pluck('id'));
 
         $adminUser = User::query()->updateOrCreate(
             ['email' => 'admin@ba-ai.local'],

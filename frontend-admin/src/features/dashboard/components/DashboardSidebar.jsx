@@ -1,4 +1,4 @@
-import { ChevronDown, KeyRound, LayoutDashboard, LogOut, Settings2, ShieldCheck, Users, X } from 'lucide-react'
+import { Briefcase, ChevronDown, KeyRound, LayoutDashboard, LogOut, Settings2, ShieldCheck, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -27,6 +27,7 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
   const navItems = [
     { to: '/admin/overview', label: 'Overview', icon: LayoutDashboard },
     { to: '/admin/users', label: 'User Management', icon: Users },
+    { to: '/admin/projects', label: 'Project Management', icon: Briefcase },
     { to: '/admin/roles', label: 'Roles & Permissions', icon: ShieldCheck },
   ]
   const settingItems = [
