@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { FileText, Trash2, Eye, EyeOff, Zap } from 'lucide-react'
+import { FileText, Trash2, Eye, EyeOff, Zap, CheckSquare } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { Button } from '../../components/ui/button'
 import { Spinner } from '../../components/ui/spinner'
@@ -8,6 +8,7 @@ import { useToast } from '../../components/ui/toast'
 import { Toast } from '../../components/ui/toast'
 import { DocumentViewer } from './DocumentViewer'
 import { GenerateModal } from './GenerateModal'
+import { ChecklistPanel } from './ChecklistPanel'
 
 const TYPE_LABELS = {
   brd: 'BRD',
@@ -52,6 +53,7 @@ export function DocumentsTab({ requirementId, groupId }) {
   const [expandedDoc, setExpandedDoc] = useState(null)
   const [loadingDocId, setLoadingDocId] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+  const [checklistDocId, setChecklistDocId] = useState(null)
   const [generateOpen, setGenerateOpen] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
@@ -219,6 +221,17 @@ export function DocumentsTab({ requirementId, groupId }) {
                   <Button
                     size="sm"
                     variant="ghost"
+                    onClick={() =>
+                      setChecklistDocId((prev) => (prev === doc.id ? null : doc.id))
+                    }
+                    className={checklistDocId === doc.id ? 'text-blue-600 bg-blue-50' : ''}
+                  >
+                    <CheckSquare size={13} />
+                    Checklist
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
                     onClick={() => handleDelete(doc)}
                     disabled={deletingId === doc.id}
                     className="text-rose-500 hover:bg-rose-50 hover:text-rose-600"
@@ -239,6 +252,13 @@ export function DocumentsTab({ requirementId, groupId }) {
                   }}
                   onUpdate={handleUpdate}
                 />
+              )}
+
+              {/* Checklist panel */}
+              {checklistDocId === doc.id && (
+                <div className="mt-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <ChecklistPanel document={doc} />
+                </div>
               )}
             </div>
           ))}

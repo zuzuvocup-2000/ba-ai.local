@@ -150,6 +150,28 @@ const api = {
     apiRequest(`/documents/${documentId}/proposals/${proposalId}/accept`, token, { method: 'POST' }),
   dismissProposal: (token, documentId, proposalId) =>
     apiRequest(`/documents/${documentId}/proposals/${proposalId}/dismiss`, token, { method: 'POST' }),
+
+  // ── Review ─────────────────────────────────────────────────────────────────
+  submitReview: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/submit-review`, token, { method: 'POST' }),
+  approveDocument: (token, documentId, data) =>
+    apiRequest(`/documents/${documentId}/approve`, token, { method: 'POST', body: data || {} }),
+  rejectDocument: (token, documentId, data) =>
+    apiRequest(`/documents/${documentId}/reject`, token, { method: 'POST', body: data }),
+  listReviews: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/reviews`, token),
+
+  // ── Checklist ──────────────────────────────────────────────────────────────
+  getChecklist: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/checklist`, token),
+  generateChecklist: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/checklist/generate`, token, { method: 'POST' }),
+  updateChecklistItem: (token, itemId, data) =>
+    apiRequest(`/checklist-items/${itemId}`, token, { method: 'PUT', body: data }),
+  reviewChecklistItem: (token, itemId, data) =>
+    apiRequest(`/checklist-items/${itemId}/review`, token, { method: 'POST', body: data }),
+  addChecklistComment: (token, itemId, data) =>
+    apiRequest(`/checklist-items/${itemId}/comments`, token, { method: 'POST', body: data }),
 }
 
 export default api
