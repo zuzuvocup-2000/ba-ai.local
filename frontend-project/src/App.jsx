@@ -11,7 +11,20 @@ function formatError(errorPayload) {
     return errorPayload.message
   }
 
-  return 'Cannot login. Please try again.'
+  return 'Không thể đăng nhập. Vui lòng thử lại.'
+}
+
+function normalizeFieldErrors(errors) {
+  if (!errors || typeof errors !== 'object') {
+    return {}
+  }
+
+  return Object.entries(errors).reduce((accumulator, [field, value]) => {
+    if (Array.isArray(value) && value.length > 0) {
+      accumulator[field] = String(value[0])
+    }
+    return accumulator
+  }, {})
 }
 
 async function apiRequest(path, token, options = {}) {
@@ -28,7 +41,10 @@ async function apiRequest(path, token, options = {}) {
 
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) {
-    throw new Error(formatError(payload?.message ?? payload))
+    const requestError = new Error(formatError(payload?.message ?? payload))
+    requestError.errors = payload?.errors ?? null
+    requestError.status = response.status
+    throw requestError
   }
 
   return payload?.data ?? payload
@@ -42,6 +58,7 @@ export default function App() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [session, setSession] = useState(null)
 
   const roleNames = useMemo(() => {
@@ -53,6 +70,7 @@ export default function App() {
     event.preventDefault()
     setLoading(true)
     setError('')
+    setFieldErrors({})
     try {
       const data = await apiRequest('/auth/login', '', {
         method: 'POST',
@@ -61,6 +79,9 @@ export default function App() {
       setSession(data)
     } catch (requestError) {
       setError(requestError.message)
+      if (requestError && typeof requestError === 'object' && 'errors' in requestError) {
+        setFieldErrors(normalizeFieldErrors(requestError.errors))
+      }
     } finally {
       setLoading(false)
     }
@@ -79,8 +100,8 @@ export default function App() {
     return (
       <main className="page">
         <section className="card">
-          <h1 className="title">Project Workspace</h1>
-          <p className="desc">BA/Dev đăng nhập vào hệ thống project. Admin/PM vẫn có thể truy cập.</p>
+          <h1 className="title">Không gian dự án</h1>
+          <p className="desc">BA/Dev đăng nhập vào hệ thống dự án. Admin/PM vẫn có thể truy cập.</p>
           <form onSubmit={onSubmit}>
             {error ? <p className="alert">{error}</p> : null}
             <div className="group">
@@ -92,9 +113,10 @@ export default function App() {
                 onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
                 required
               />
+              {fieldErrors.email ? <p className="field-error">{fieldErrors.email}</p> : null}
             </div>
             <div className="group">
-              <label className="label">Password</label>
+              <label className="label">Mật khẩu</label>
               <input
                 className="input"
                 type="password"
@@ -102,9 +124,10 @@ export default function App() {
                 onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
                 required
               />
+              {fieldErrors.password ? <p className="field-error">{fieldErrors.password}</p> : null}
             </div>
             <button className="button" type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Login to Project'}
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập hệ thống dự án'}
             </button>
           </form>
         </section>
@@ -117,19 +140,19 @@ export default function App() {
       <header className="workspace-header">
         <div>
           <strong>BA AI - Project System</strong>
-          <div className="desc">Welcome, {session.user?.name}</div>
+          <div className="desc">Xin chào, {session.user?.name}</div>
         </div>
         <button className="button" onClick={onLogout} style={{ width: 'auto' }}>
-          Logout
+          Đăng xuất
         </button>
       </header>
       <main className="workspace-main">
         <p>
-          <span className="pill">System: {session.system}</span>
+          <span className="pill">Hệ thống: {session.system}</span>
         </p>
         <p>Email: {session.user?.email}</p>
-        <p>Roles: {roleNames || 'N/A'}</p>
-        <p>Permissions loaded: {(session.user?.permissions || []).length}</p>
+        <p>Vai trò: {roleNames || 'Chưa có'}</p>
+        <p>Số quyền đã nạp: {(session.user?.permissions || []).length}</p>
       </main>
     </section>
   )

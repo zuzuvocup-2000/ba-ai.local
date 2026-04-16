@@ -25,10 +25,10 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
   const [accountLoading, setAccountLoading] = useState(false)
 
   const navItems = [
-    { to: '/admin/overview', label: 'Overview', icon: LayoutDashboard },
-    { to: '/admin/users', label: 'User Management', icon: Users },
-    { to: '/admin/projects', label: 'Project Management', icon: Briefcase },
-    { to: '/admin/roles', label: 'Roles & Permissions', icon: ShieldCheck },
+    { to: '/admin/overview', label: 'Tổng quan', icon: LayoutDashboard },
+    { to: '/admin/users', label: 'Quản lý tài khoản', icon: Users },
+    { to: '/admin/projects', label: 'Quản lý dự án', icon: Briefcase },
+    { to: '/admin/roles', label: 'Vai trò và quyền', icon: ShieldCheck },
   ]
   const settingItems = [
     { to: '/admin/settings/general', label: 'Cấu hình chung', icon: Settings2 },
@@ -87,9 +87,9 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
     <aside className="h-full">
       <Card className="flex h-full flex-col overflow-hidden border-slate-800/20 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-0 text-slate-100">
         <div className="border-b border-white/10 p-5">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Workspace</p>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Hệ thống</p>
           <h2 className="mt-2 text-xl font-semibold tracking-wide text-white">BA AI Admin</h2>
-          <p className="mt-1 text-xs text-slate-300">Control center</p>
+          <p className="mt-1 text-xs text-slate-300">Trung tâm quản trị</p>
         </div>
 
         <div className="flex-1 space-y-2 p-3">
@@ -126,7 +126,7 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
           {openMenus.logs && <div className="space-y-1 pl-2">{logItems.map(renderNavItem)}</div>}
         </div>
         <div className="border-t border-white/10 p-4">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Current account</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Tài khoản hiện tại</p>
           <p className="mt-2 truncate text-sm font-medium text-white">{user.email}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {user.roles.map((role) => (

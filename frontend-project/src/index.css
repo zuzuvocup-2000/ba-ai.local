@@ -86,6 +86,12 @@ body {
   font-size: 13px;
 }
 
+.field-error {
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
 .workspace {
   min-height: 100vh;
   display: grid;

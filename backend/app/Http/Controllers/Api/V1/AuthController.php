@@ -35,7 +35,7 @@ class AuthController extends Controller
                 'reason' => 'invalid_credentials',
             ]);
 
-            return ApiResponse::error('Email or password is invalid.', 422);
+            return ApiResponse::error('Email hoặc mật khẩu không chính xác.', 422);
         }
 
         if (($result['forbidden'] ?? false) === true) {
@@ -66,12 +66,12 @@ class AuthController extends Controller
             'status' => 'success',
         ]);
 
-        return ApiResponse::success($result, 'Login success.');
+        return ApiResponse::success($result, 'Đăng nhập thành công.');
     }
 
     public function me()
     {
-        return ApiResponse::success($this->authService->me(request()->user()), 'Profile fetched.');
+        return ApiResponse::success($this->authService->me(request()->user()), 'Lấy thông tin tài khoản thành công.');
     }
 
     public function logout()
@@ -83,7 +83,7 @@ class AuthController extends Controller
 
         $this->authService->logout(request()->bearerToken());
 
-        return ApiResponse::success(null, 'Logged out successfully.');
+        return ApiResponse::success(null, 'Đăng xuất thành công.');
     }
 
     public function changePassword(ChangePasswordRequest $request)
@@ -91,7 +91,7 @@ class AuthController extends Controller
         $user = request()->user();
 
         if (! Hash::check($request->string('current_password')->toString(), $user->password)) {
-            return ApiResponse::error('Current password is invalid.', 422);
+            return ApiResponse::error('Mật khẩu hiện tại không chính xác.', 422);
         }
 
         $user->update([
@@ -103,6 +103,6 @@ class AuthController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return ApiResponse::success(null, 'Password updated successfully.');
+        return ApiResponse::success(null, 'Cập nhật mật khẩu thành công.');
     }
 }

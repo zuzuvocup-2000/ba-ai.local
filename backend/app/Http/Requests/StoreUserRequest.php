@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreUserRequest extends FormRequest
+class StoreUserRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,6 +26,20 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'role_id' => ['required', 'integer', Rule::exists('roles', 'id')],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Họ tên là bắt buộc.',
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.unique' => 'Email đã tồn tại trong hệ thống.',
+            'password.required' => 'Mật khẩu là bắt buộc.',
+            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
+            'role_id.required' => 'Vai trò là bắt buộc.',
+            'role_id.exists' => 'Vai trò không tồn tại.',
         ];
     }
 }

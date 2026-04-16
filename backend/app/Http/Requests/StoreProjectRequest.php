@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreProjectRequest extends FormRequest
+class StoreProjectRequest extends ApiFormRequest
 {
     public function authorize(): bool
     {
@@ -21,6 +20,18 @@ class StoreProjectRequest extends FormRequest
             'status' => ['nullable', 'string', Rule::in(['planning', 'active', 'on-hold', 'done'])],
             'member_ids' => ['sometimes', 'array'],
             'member_ids.*' => ['integer', Rule::exists('users', 'id')],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'code.required' => 'Mã dự án là bắt buộc.',
+            'code.unique' => 'Mã dự án đã tồn tại.',
+            'name.required' => 'Tên dự án là bắt buộc.',
+            'status.in' => 'Trạng thái dự án không hợp lệ.',
+            'member_ids.array' => 'Danh sách thành viên phải là mảng.',
+            'member_ids.*.exists' => 'Có thành viên không tồn tại trong hệ thống.',
         ];
     }
 }

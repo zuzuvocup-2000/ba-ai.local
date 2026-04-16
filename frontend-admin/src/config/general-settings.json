@@ -1,9 +1,9 @@
 [
-  { "key": "brand_name", "name": "Brand Name" },
-  { "key": "support_email", "name": "Support Email" },
-  { "key": "company_phone", "name": "Company Phone" },
-  { "key": "company_address", "name": "Company Address" },
-  { "key": "timezone", "name": "Timezone" },
-  { "key": "locale", "name": "Locale" }
+  { "key": "brand_name", "name": "Tên thương hiệu" },
+  { "key": "support_email", "name": "Email hỗ trợ" },
+  { "key": "company_phone", "name": "Số điện thoại công ty" },
+  { "key": "company_address", "name": "Địa chỉ công ty" },
+  { "key": "timezone", "name": "Múi giờ" },
+  { "key": "locale", "name": "Ngôn ngữ" }
 ]
 

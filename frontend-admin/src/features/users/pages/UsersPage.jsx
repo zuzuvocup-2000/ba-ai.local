@@ -12,6 +12,7 @@ export function UsersPage({
   onResetUserForm,
   onEditUser,
   onDeleteUser,
+  fieldErrors,
   error,
 }) {
   return (
@@ -28,6 +29,7 @@ export function UsersPage({
           canEdit={can('users.edit')}
           onSubmit={onSubmitUser}
           onReset={onResetUserForm}
+          fieldErrors={fieldErrors}
         />
 
         <UsersTableCard

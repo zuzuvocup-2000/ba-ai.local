@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class LoginRequest extends FormRequest
+class LoginRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,6 +25,17 @@ class LoginRequest extends FormRequest
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
             'system' => ['required', 'string', Rule::in(['admin', 'project'])],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không đúng định dạng.',
+            'password.required' => 'Mật khẩu là bắt buộc.',
+            'system.required' => 'Loại hệ thống đăng nhập là bắt buộc.',
+            'system.in' => 'Loại hệ thống đăng nhập không hợp lệ.',
         ];
     }
 }

@@ -13,6 +13,7 @@ export function UserFormCard({
   canEdit,
   onSubmit,
   onReset,
+  fieldErrors,
 }) {
   const roleOptions = roles.map((role) => ({ value: role.id, label: role.name }))
   const selectedRoleOption = roleOptions.find((option) => option.value === userForm.role_id) ?? null
@@ -20,7 +21,7 @@ export function UserFormCard({
   return (
     <Card className="p-6">
       <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <UserCog size={18} /> User Form
+        <UserCog size={18} /> Biểu mẫu tài khoản
       </h3>
       <p className="mb-5 text-sm text-slate-500">Tạo mới hoặc cập nhật tài khoản.</p>
 
@@ -33,6 +34,7 @@ export function UserFormCard({
               onChange={(event) => setUserForm({ ...userForm, name: event.target.value })}
               required
             />
+            {fieldErrors?.name && <p className="text-xs text-rose-600">{fieldErrors.name}</p>}
           </div>
 
           <div className="space-y-2">
@@ -43,6 +45,7 @@ export function UserFormCard({
               onChange={(event) => setUserForm({ ...userForm, email: event.target.value })}
               required
             />
+            {fieldErrors?.email && <p className="text-xs text-rose-600">{fieldErrors.email}</p>}
           </div>
         </div>
 
@@ -55,6 +58,7 @@ export function UserFormCard({
             required={!userForm.id}
             placeholder={userForm.id ? 'Để trống nếu không đổi' : ''}
           />
+          {fieldErrors?.password && <p className="text-xs text-rose-600">{fieldErrors.password}</p>}
         </div>
 
         <div className="space-y-2">
@@ -70,6 +74,7 @@ export function UserFormCard({
           {!userForm.role_id && (
             <p className="text-xs text-slate-400">Mỗi tài khoản chỉ có 1 vai trò.</p>
           )}
+          {fieldErrors?.role_id && <p className="text-xs text-rose-600">{fieldErrors.role_id}</p>}
         </div>
 
         <div className="flex gap-2 border-t border-slate-100 pt-4">
@@ -82,10 +87,10 @@ export function UserFormCard({
               (!canEdit && !!userForm.id)
             }
           >
-            {userForm.id ? 'Cập nhật' : 'Tạo user'}
+            {userForm.id ? 'Cập nhật' : 'Tạo tài khoản'}
           </Button>
           <Button type="button" variant="secondary" onClick={onReset}>
-            Reset
+            Đặt lại
           </Button>
         </div>
       </form>

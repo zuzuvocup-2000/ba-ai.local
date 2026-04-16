@@ -23,7 +23,7 @@ class SettingController extends Controller
 
         return ApiResponse::success(
             $this->settingService->list($group, $onlyPublic),
-            'Settings fetched.'
+            'Lấy cấu hình thành công.'
         );
     }
 
@@ -33,12 +33,12 @@ class SettingController extends Controller
         $onlyPublic = filter_var($request->query('public', false), FILTER_VALIDATE_BOOLEAN);
 
         if (count($keys) === 0) {
-            return ApiResponse::error('You must provide at least one key.', 422);
+            return ApiResponse::error('Bạn phải truyền ít nhất một key cấu hình.', 422);
         }
 
         return ApiResponse::success(
             $this->settingService->resolveByKeys($keys, $onlyPublic),
-            'Settings resolved.'
+            'Lấy cấu hình theo key thành công.'
         );
     }
 
@@ -57,7 +57,7 @@ class SettingController extends Controller
             'keys' => array_map(fn ($item) => $item['key'], $items),
         ]);
 
-        return ApiResponse::success(null, 'Settings updated successfully.');
+        return ApiResponse::success(null, 'Cập nhật cấu hình thành công.');
     }
 }
 

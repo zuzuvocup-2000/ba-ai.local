@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { apiRequest, clearSession, getSession, setSession } from '../api'
+import { apiRequest, ApiRequestError, clearSession, getSession, setSession } from '../api'
 
 const initialLoginForm = { email: 'admin@ba-ai.local', password: 'Admin@123', system: 'admin' }
 const initialUserForm = { id: null, name: '', email: '', password: '', role_id: null }
@@ -16,6 +16,9 @@ export function useAdminDashboard() {
   const [userForm, setUserForm] = useState(initialUserForm)
   const [projects, setProjects] = useState([])
   const [projectForm, setProjectForm] = useState(initialProjectForm)
+  const [loginErrors, setLoginErrors] = useState({})
+  const [userFormErrors, setUserFormErrors] = useState({})
+  const [projectFormErrors, setProjectFormErrors] = useState({})
 
   const can = useMemo(() => {
     const permissions = new Set(user?.permissions ?? [])
@@ -24,11 +27,27 @@ export function useAdminDashboard() {
 
   const resetUserForm = useCallback(() => {
     setUserForm(initialUserForm)
+    setUserFormErrors({})
   }, [])
 
   const resetProjectForm = useCallback(() => {
     setProjectForm(initialProjectForm)
+    setProjectFormErrors({})
   }, [])
+
+  const normalizeFieldErrors = (errors) => {
+    if (!errors || typeof errors !== 'object') {
+      return {}
+    }
+
+    return Object.entries(errors).reduce((accumulator, [field, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        const normalizedField = field.startsWith('member_ids.') ? 'member_ids' : field
+        accumulator[normalizedField] = String(value[0])
+      }
+      return accumulator
+    }, {})
+  }
 
   const refreshUsers = useCallback(async (activeToken, canViewUsers) => {
     if (!canViewUsers) return []
@@ -87,6 +106,7 @@ export function useAdminDashboard() {
     event.preventDefault()
     setLoading(true)
     setError('')
+    setLoginErrors({})
 
     try {
       const response = await apiRequest('/auth/login', '', {
@@ -98,6 +118,9 @@ export function useAdminDashboard() {
       setSession(response.token, response.user)
     } catch (requestError) {
       setError(requestError.message)
+      if (requestError instanceof ApiRequestError) {
+        setLoginErrors(normalizeFieldErrors(requestError.errors))
+      }
     } finally {
       setLoading(false)
     }
@@ -131,6 +154,7 @@ export function useAdminDashboard() {
     event.preventDefault()
     setLoading(true)
     setError('')
+    setUserFormErrors({})
 
     try {
       const payload = {
@@ -153,6 +177,9 @@ export function useAdminDashboard() {
       resetUserForm()
     } catch (requestError) {
       setError(requestError.message)
+      if (requestError instanceof ApiRequestError) {
+        setUserFormErrors(normalizeFieldErrors(requestError.errors))
+      }
     } finally {
       setLoading(false)
     }
@@ -188,6 +215,7 @@ export function useAdminDashboard() {
     event.preventDefault()
     setLoading(true)
     setError('')
+    setProjectFormErrors({})
 
     try {
       const payload = {
@@ -208,6 +236,9 @@ export function useAdminDashboard() {
       resetProjectForm()
     } catch (requestError) {
       setError(requestError.message)
+      if (requestError instanceof ApiRequestError) {
+        setProjectFormErrors(normalizeFieldErrors(requestError.errors))
+      }
     } finally {
       setLoading(false)
     }
@@ -250,7 +281,8 @@ export function useAdminDashboard() {
   return {
     auth: { token, user, loginForm, setLoginForm, login, logout },
     data: { roles, users, projects, loading, error, setError, can },
-    userForm: { userForm, setUserForm, resetUserForm, editUser, submitUser, deleteUser },
+    loginState: { loginErrors },
+    userForm: { userForm, setUserForm, resetUserForm, editUser, submitUser, deleteUser, userFormErrors },
     projectForm: {
       projectForm,
       setProjectForm,
@@ -259,6 +291,7 @@ export function useAdminDashboard() {
       submitProject,
       deleteProject,
       syncProjectMembers,
+      projectFormErrors,
     },
   }
 }

@@ -19,7 +19,7 @@ class ProjectController extends Controller
 
     public function index()
     {
-        return ApiResponse::success($this->projectService->list(), 'Projects fetched.');
+        return ApiResponse::success($this->projectService->list(), 'Lấy danh sách dự án thành công.');
     }
 
     public function store(StoreProjectRequest $request)
@@ -32,7 +32,7 @@ class ProjectController extends Controller
             'project_id' => $project->id,
         ]);
 
-        return ApiResponse::success($this->projectService->toArray($project), 'Project created successfully.', 201);
+        return ApiResponse::success($this->projectService->toArray($project), 'Tạo dự án thành công.', 201);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
@@ -45,7 +45,7 @@ class ProjectController extends Controller
             'project_id' => $updatedProject->id,
         ]);
 
-        return ApiResponse::success($this->projectService->toArray($updatedProject), 'Project updated successfully.');
+        return ApiResponse::success($this->projectService->toArray($updatedProject), 'Cập nhật dự án thành công.');
     }
 
     public function syncMembers(SyncProjectMembersRequest $request, Project $project)
@@ -59,7 +59,7 @@ class ProjectController extends Controller
             'member_count' => count($request->validated()['member_ids']),
         ]);
 
-        return ApiResponse::success($this->projectService->toArray($updatedProject), 'Project members updated successfully.');
+        return ApiResponse::success($this->projectService->toArray($updatedProject), 'Cập nhật thành viên dự án thành công.');
     }
 
     public function destroy(Project $project)
@@ -72,7 +72,7 @@ class ProjectController extends Controller
             'project_id' => $project->id,
         ]);
 
-        return ApiResponse::success(null, 'Project deleted successfully.');
+        return ApiResponse::success(null, 'Xóa dự án thành công.');
     }
 }
 

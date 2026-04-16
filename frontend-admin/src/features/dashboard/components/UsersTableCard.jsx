@@ -15,7 +15,7 @@ export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) 
   return (
     <Card className="p-6">
       <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <ShieldCheck size={18} /> User Permissions
+        <ShieldCheck size={18} /> Quyền tài khoản
       </h3>
       <p className="mb-4 text-sm text-slate-500">Danh sách tài khoản và quyền hiện tại.</p>
 
@@ -27,7 +27,7 @@ export function UsersTableCard({ users, canEdit, canDelete, onEdit, onDelete }) 
               <th className="px-3 py-3">Email</th>
               <th className="px-3 py-3">Vai trò</th>
               <th className="px-3 py-3">Quyền</th>
-              <th className="px-3 py-3">Action</th>
+              <th className="px-3 py-3">Thao tác</th>
             </tr>
           </thead>
           <tbody>

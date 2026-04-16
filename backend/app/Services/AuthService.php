@@ -27,7 +27,7 @@ class AuthService
         if (! $user->canAccessSystem($system)) {
             return [
                 'forbidden' => true,
-                'message' => 'Your account cannot access this system.',
+                'message' => 'Tài khoản của bạn không được phép truy cập hệ thống này.',
             ];
         }
 

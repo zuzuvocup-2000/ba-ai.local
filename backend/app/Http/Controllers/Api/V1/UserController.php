@@ -18,7 +18,7 @@ class UserController extends Controller
 
     public function index()
     {
-        return ApiResponse::success($this->userService->list(), 'Users fetched.');
+        return ApiResponse::success($this->userService->list(), 'Lấy danh sách tài khoản thành công.');
     }
 
     public function store(StoreUserRequest $request)
@@ -31,7 +31,7 @@ class UserController extends Controller
             'target_user_id' => $user->id,
         ]);
 
-        return ApiResponse::success($user, 'User created successfully.', 201);
+        return ApiResponse::success($user, 'Tạo tài khoản thành công.', 201);
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -44,7 +44,7 @@ class UserController extends Controller
             'target_user_id' => $updatedUser->id,
         ]);
 
-        return ApiResponse::success($updatedUser, 'User updated successfully.');
+        return ApiResponse::success($updatedUser, 'Cập nhật tài khoản thành công.');
     }
 
     public function destroy(User $user)
@@ -52,7 +52,7 @@ class UserController extends Controller
         $deleted = $this->userService->delete($user, request()->user());
 
         if (! $deleted) {
-            return ApiResponse::error('You cannot delete your own account.', 422);
+            return ApiResponse::error('Bạn không thể tự xóa chính tài khoản của mình.', 422);
         }
 
         MongoLogHelper::action([
@@ -61,6 +61,6 @@ class UserController extends Controller
             'target_user_id' => $user->id,
         ]);
 
-        return ApiResponse::success(null, 'User deleted successfully.');
+        return ApiResponse::success(null, 'Xóa tài khoản thành công.');
     }
 }

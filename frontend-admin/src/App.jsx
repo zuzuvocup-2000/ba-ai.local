@@ -11,7 +11,7 @@ import { UsersPage } from './features/users/pages/UsersPage'
 import { useAdminDashboard } from './hooks/useAdminDashboard'
 
 function App() {
-  const { auth, data, userForm, projectForm } = useAdminDashboard()
+  const { auth, data, loginState, userForm, projectForm } = useAdminDashboard()
 
   const fetchSettings = async (token) => {
     return apiRequest('/settings', token)
@@ -47,6 +47,7 @@ function App() {
         setLoginForm={auth.setLoginForm}
         onSubmit={auth.login}
         error={data.error}
+        fieldErrors={loginState.loginErrors}
         loading={data.loading}
       />
     )
@@ -90,6 +91,7 @@ function App() {
               onResetUserForm={userForm.resetUserForm}
               onEditUser={userForm.editUser}
               onDeleteUser={userForm.deleteUser}
+              fieldErrors={userForm.userFormErrors}
               error={data.error}
             />
           }
@@ -109,6 +111,7 @@ function App() {
               onEditProject={projectForm.editProject}
               onDeleteProject={projectForm.deleteProject}
               onSyncProjectMembers={projectForm.syncProjectMembers}
+              fieldErrors={projectForm.projectFormErrors}
               error={data.error}
             />
           }

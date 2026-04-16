@@ -25,6 +25,17 @@ class LogController extends Controller
                 'page' => ['nullable', 'integer', 'min:1'],
                 'per_page' => ['nullable', 'integer', 'min:1', 'max:200'],
                 'search' => ['nullable', 'string', 'max:200'],
+            ],
+            [
+                'type.required' => 'Loại nhật ký là bắt buộc.',
+                'type.in' => 'Loại nhật ký không hợp lệ.',
+                'page.integer' => 'Trang phải là số nguyên.',
+                'page.min' => 'Trang phải lớn hơn hoặc bằng 1.',
+                'per_page.integer' => 'Số bản ghi mỗi trang phải là số nguyên.',
+                'per_page.min' => 'Số bản ghi mỗi trang phải lớn hơn hoặc bằng 1.',
+                'per_page.max' => 'Số bản ghi mỗi trang không được vượt quá 200.',
+                'search.string' => 'Từ khóa tìm kiếm phải là chuỗi.',
+                'search.max' => 'Từ khóa tìm kiếm tối đa 200 ký tự.',
             ]
         )->validate();
 
@@ -40,7 +51,7 @@ class LogController extends Controller
             'type' => $validated['type'],
             'items' => $result['items'],
             'meta' => $result['meta'],
-        ], 'Logs fetched.');
+        ], 'Lấy danh sách nhật ký thành công.');
     }
 }
 

@@ -1,5 +1,17 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://ba-ai.local/api/v1/admin'
+const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://ba-ai.local/api/v1/admin'
+const API_BASE_URL = rawApiBaseUrl.includes('/api/v1/admin')
+  ? rawApiBaseUrl
+  : rawApiBaseUrl.replace('/api/v1', '/api/v1/admin')
 const SESSION_KEY = 'ba_ai_admin_session'
+
+export class ApiRequestError extends Error {
+  constructor(message, errors = null, status = 500) {
+    super(message)
+    this.name = 'ApiRequestError'
+    this.errors = errors
+    this.status = status
+  }
+}
 
 export const getSession = () => {
   const raw = localStorage.getItem(SESSION_KEY)
@@ -34,7 +46,11 @@ export const apiRequest = async (path, token = '', options = {}) => {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    throw new Error(data.message ?? 'Có lỗi xảy ra khi gọi API.')
+    throw new ApiRequestError(
+      data.message ?? 'Có lỗi xảy ra khi gọi API.',
+      data.errors ?? null,
+      response.status
+    )
   }
 
   if (typeof data === 'object' && data !== null && 'data' in data) {

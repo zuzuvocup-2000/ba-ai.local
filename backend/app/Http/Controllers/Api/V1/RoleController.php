@@ -14,6 +14,6 @@ class RoleController extends Controller
 
     public function index()
     {
-        return ApiResponse::success($this->roleService->list(), 'Roles fetched.');
+        return ApiResponse::success($this->roleService->list(), 'Lấy danh sách vai trò thành công.');
     }
 }
