@@ -7,13 +7,16 @@ use App\Helpers\MongoLogHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpsertRequirementAnalysisRequest;
 use App\Models\RequirementAnalysis;
+use App\Services\AiGenerationService;
 use App\Services\RequirementAnalysisService;
 use Illuminate\Http\Request;
 
 class RequirementAnalysisController extends Controller
 {
-    public function __construct(private readonly RequirementAnalysisService $requirementAnalysisService)
-    {
+    public function __construct(
+        private readonly RequirementAnalysisService $requirementAnalysisService,
+        private readonly AiGenerationService $aiGenerationService,
+    ) {
     }
 
     public function index(Request $request)
@@ -68,6 +71,18 @@ class RequirementAnalysisController extends Controller
             'document_type'  => ['required', 'string', 'in:brd,flow_diagram,sql_logic,business_rules,validation_rules,test_cases,checklist'],
         ]);
 
-        return ApiResponse::error('Tính năng AI sẽ ra mắt ở Phase 2.', 501);
+        $requirement = \App\Models\Requirement::findOrFail($request->integer('requirement_id'));
+
+        try {
+            $prefilled = $this->aiGenerationService->prefillAnalysis(
+                $requirement,
+                $request->input('document_type'),
+                auth()->id()
+            );
+        } catch (\RuntimeException $e) {
+            return ApiResponse::error($e->getMessage(), 502);
+        }
+
+        return ApiResponse::success($prefilled, 'AI đã phân tích và điền sẵn form. Vui lòng kiểm tra và xác nhận trước khi lưu.');
     }
 }

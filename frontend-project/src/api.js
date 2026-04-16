@@ -106,6 +106,30 @@ const api = {
   upsertAnalysis: (token, data) => apiRequest('/analyses', token, { method: 'POST', body: data }),
 
   deleteAnalysis: (token, id) => apiRequest(`/analyses/${id}`, token, { method: 'DELETE' }),
+
+  // ── Documents ────────────────────────────────────────────────────────────────
+  listDocuments: (token, requirementId) =>
+    apiRequest(`/documents?requirement_id=${requirementId}`, token),
+
+  getDocument: (token, id) => apiRequest(`/documents/${id}`, token),
+
+  updateDocument: (token, id, data) =>
+    apiRequest(`/documents/${id}`, token, { method: 'PUT', body: data }),
+
+  deleteDocument: (token, id) =>
+    apiRequest(`/documents/${id}`, token, { method: 'DELETE' }),
+
+  generateDocument: (token, requirementId, documentType) =>
+    apiRequest('/documents/generate', token, {
+      method: 'POST',
+      body: { requirement_id: requirementId, document_type: documentType },
+    }),
+
+  bulkGenerateDocuments: (token, groupId, documentTypes) =>
+    apiRequest(`/groups/${groupId}/bulk-generate`, token, {
+      method: 'POST',
+      body: { document_types: documentTypes },
+    }),
 }
 
 export default api

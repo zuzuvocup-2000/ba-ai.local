@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\DocumentTemplateController;
 use App\Http\Controllers\Api\V1\LogController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -141,6 +142,9 @@ Route::prefix('v1')->group(function () {
             Route::put('/groups/{group}/move', [RequirementGroupController::class, 'move'])
                 ->defaults('permission', 'groups.edit')
                 ->middleware('permission');
+            Route::post('/groups/{group}/bulk-generate', [DocumentController::class, 'bulkGenerate'])
+                ->defaults('permission', 'groups.bulk_generate')
+                ->middleware('permission');
             Route::delete('/groups/{group}', [RequirementGroupController::class, 'destroy'])
                 ->defaults('permission', 'groups.delete')
                 ->middleware('permission');
@@ -183,6 +187,23 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission');
             Route::delete('/analyses/{analysis}', [RequirementAnalysisController::class, 'destroy'])
                 ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+
+            // Documents — static route before dynamic to avoid conflict
+            Route::get('/documents', [DocumentController::class, 'index'])
+                ->defaults('permission', 'documents.view')
+                ->middleware('permission');
+            Route::post('/documents/generate', [DocumentController::class, 'generate'])
+                ->defaults('permission', 'documents.generate')
+                ->middleware('permission');
+            Route::get('/documents/{document}', [DocumentController::class, 'show'])
+                ->defaults('permission', 'documents.view')
+                ->middleware('permission');
+            Route::put('/documents/{document}', [DocumentController::class, 'update'])
+                ->defaults('permission', 'documents.edit')
+                ->middleware('permission');
+            Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])
+                ->defaults('permission', 'documents.delete')
                 ->middleware('permission');
         });
 

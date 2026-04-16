@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, FileText, Tag, Calendar, Lock, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Tag, Calendar, AlertCircle } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { AppLayout } from '../../layout/AppLayout'
 import { Badge } from '../../components/ui/badge'
-import { Button } from '../../components/ui/button'
 import { Card } from '../../components/ui/card'
 import { PageSpinner } from '../../components/ui/spinner'
 import { AnalysisForm } from '../analyses/AnalysisForm'
+import { DocumentsTab } from '../documents/DocumentsTab'
 
 export function RequirementDetailPage() {
   const { projectId, requirementId } = useParams()
@@ -145,26 +145,13 @@ export function RequirementDetailPage() {
                 </Card>
               )}
 
-              {/* Documents section (Phase 2) */}
+              {/* Documents section */}
               {activeSection === 'documents' && (
-                <Card className="p-8 text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-                    <FileText size={24} />
-                  </div>
-                  <h3 className="font-semibold text-slate-700">Danh sách tài liệu</h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Chức năng quản lý tài liệu sẽ ra mắt ở Phase 2.
-                  </p>
-                  <div className="mt-4">
-                    <div className="relative inline-block group">
-                      <Button disabled className="cursor-not-allowed opacity-70">
-                        <Lock size={13} /> Tạo tài liệu
-                      </Button>
-                      <div className="absolute bottom-full left-1/2 mb-2 hidden w-44 -translate-x-1/2 rounded-lg bg-slate-800 px-3 py-2 text-xs text-white group-hover:block">
-                        Sắp ra mắt ở Phase 2
-                      </div>
-                    </div>
-                  </div>
+                <Card className="p-5">
+                  <DocumentsTab
+                    requirementId={Number(requirementId)}
+                    groupId={requirement.group_id ?? requirement.group?.id}
+                  />
                 </Card>
               )}
             </div>
@@ -209,12 +196,14 @@ export function RequirementDetailPage() {
                 </dl>
               </Card>
 
-              {/* Documents placeholder */}
+              {/* Documents quick link */}
               <Card className="p-4">
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Tài liệu đã tạo
                 </h3>
-                <p className="text-xs text-slate-400">Chưa có tài liệu. (Phase 2)</p>
+                <p className="text-xs text-slate-400">
+                  Xem tab <span className="font-medium text-slate-600">Tài liệu</span> để quản lý tài liệu AI.
+                </p>
               </Card>
             </div>
           </div>
