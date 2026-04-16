@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(node /e/OpenServer/home/ba-ai.local/frontend-project/node_modules/.bin/vite build)",
+      "Bash(npx vite *)",
+      "Bash(git -C /e/OpenServer/home/ba-ai.local/.claude/worktrees/agent-abe8aa46 status --short)",
+      "Bash(git -C /e/OpenServer/home/ba-ai.local/.claude/worktrees/agent-a00905df status --short)",
+      "Bash(node node_modules/.bin/vite build)",
+      "Bash(cmd /c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-project && npm run build 2>&1\")",
+      "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-project && npm run build\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build\")"
+    ]
+  }
+}

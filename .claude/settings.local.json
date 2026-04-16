@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l e:/OpenServer/home/ba-ai.local/backend/app/Services/*.php)",
+      "Bash(php -l app/Repositories/RequirementGroupRepository.php)",
+      "Bash(php -l app/Repositories/RequirementRepository.php)",
+      "Bash(php -l app/Repositories/RequirementAnalysisRepository.php)",
+      "Bash(php -l app/Repositories/DocumentTemplateRepository.php)",
+      "Bash(php -l app/Services/RequirementGroupService.php)"
+    ]
+  }
+}
