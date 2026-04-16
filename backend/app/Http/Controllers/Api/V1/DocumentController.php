@@ -7,6 +7,7 @@ use App\Helpers\MongoLogHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkGenerateRequest;
 use App\Http\Requests\GenerateDocumentRequest;
+use App\Http\Requests\ListDocumentsRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Models\Requirement;
@@ -14,7 +15,6 @@ use App\Models\RequirementAnalysis;
 use App\Models\RequirementGroup;
 use App\Services\AiGenerationService;
 use App\Services\DocumentService;
-use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
@@ -23,12 +23,8 @@ class DocumentController extends Controller
         private readonly AiGenerationService $aiGenerationService,
     ) {}
 
-    public function index(Request $request)
+    public function index(ListDocumentsRequest $request)
     {
-        $request->validate([
-            'requirement_id' => ['required', 'integer', 'exists:requirements,id'],
-        ]);
-
         $documents = $this->documentService->listByRequirement($request->integer('requirement_id'));
 
         return ApiResponse::success($documents, 'Lấy danh sách tài liệu thành công.');

@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helpers\ApiResponse;
 use App\Helpers\MongoLogHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListRequirementAnalysesRequest;
+use App\Http\Requests\PrefillAnalysisRequest;
 use App\Http\Requests\UpsertRequirementAnalysisRequest;
 use App\Models\RequirementAnalysis;
 use App\Services\AiGenerationService;
 use App\Services\RequirementAnalysisService;
-use Illuminate\Http\Request;
 
 class RequirementAnalysisController extends Controller
 {
@@ -19,12 +20,8 @@ class RequirementAnalysisController extends Controller
     ) {
     }
 
-    public function index(Request $request)
+    public function index(ListRequirementAnalysesRequest $request)
     {
-        $request->validate([
-            'requirement_id' => ['required', 'integer', 'exists:requirements,id'],
-        ]);
-
         $analyses = $this->requirementAnalysisService->listByRequirement($request->integer('requirement_id'));
 
         return ApiResponse::success($analyses, 'Lấy danh sách phân tích yêu cầu thành công.');
@@ -64,13 +61,8 @@ class RequirementAnalysisController extends Controller
         return ApiResponse::success(null, 'Xóa phân tích yêu cầu thành công.');
     }
 
-    public function prefill(Request $request)
+    public function prefill(PrefillAnalysisRequest $request)
     {
-        $request->validate([
-            'requirement_id' => ['required', 'integer', 'exists:requirements,id'],
-            'document_type'  => ['required', 'string', 'in:brd,flow_diagram,sql_logic,business_rules,validation_rules,test_cases,checklist'],
-        ]);
-
         $requirement = \App\Models\Requirement::findOrFail($request->integer('requirement_id'));
 
         try {

@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helpers\ApiResponse;
 use App\Helpers\MongoLogHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ApproveDocumentRequest;
+use App\Http\Requests\RejectDocumentRequest;
 use App\Models\Document;
 use App\Services\DocumentReviewService;
 use App\Services\DocumentService;
-use Illuminate\Http\Request;
 
 class DocumentReviewController extends Controller
 {
@@ -48,12 +49,8 @@ class DocumentReviewController extends Controller
         return ApiResponse::success($this->documentService->toArray($updated), 'Đã gửi tài liệu để review.');
     }
 
-    public function approve(Request $request, Document $document)
+    public function approve(ApproveDocumentRequest $request, Document $document)
     {
-        $request->validate([
-            'comment' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         try {
             $updated = $this->reviewService->approve($document, auth()->id(), $request->input('comment'));
         } catch (\InvalidArgumentException $e) {
@@ -70,12 +67,8 @@ class DocumentReviewController extends Controller
         return ApiResponse::success($this->documentService->toArray($updated), 'Tài liệu đã được phê duyệt.');
     }
 
-    public function reject(Request $request, Document $document)
+    public function reject(RejectDocumentRequest $request, Document $document)
     {
-        $request->validate([
-            'comment' => ['required', 'string', 'max:1000'],
-        ]);
-
         try {
             $updated = $this->reviewService->reject($document, auth()->id(), $request->input('comment'));
         } catch (\InvalidArgumentException $e) {

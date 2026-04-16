@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helpers\ApiResponse;
 use App\Helpers\MongoLogHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListRequirementsRequest;
 use App\Http\Requests\MoveRequirementGroupRequest;
 use App\Http\Requests\StoreRequirementRequest;
 use App\Http\Requests\UpdateRequirementRequest;
 use App\Models\Requirement;
 use App\Services\RequirementService;
-use Illuminate\Http\Request;
 
 class RequirementController extends Controller
 {
@@ -18,14 +18,8 @@ class RequirementController extends Controller
     {
     }
 
-    public function index(Request $request)
+    public function index(ListRequirementsRequest $request)
     {
-        $request->validate([
-            'project_id' => ['required', 'integer', 'exists:projects,id'],
-            'group_id'   => ['nullable', 'integer', 'exists:requirement_groups,id'],
-            'status'     => ['nullable', 'string', 'in:draft,in_analysis,completed,archived'],
-        ]);
-
         $filters = $request->only(['project_id', 'group_id', 'status']);
         $requirements = $this->requirementService->list($filters);
 

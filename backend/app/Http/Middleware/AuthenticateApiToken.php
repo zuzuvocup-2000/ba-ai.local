@@ -20,7 +20,7 @@ class AuthenticateApiToken
         $plainToken = $request->bearerToken();
 
         if (! $plainToken) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(['message' => 'Chưa xác thực.'], 401);
         }
 
         $hashedToken = hash('sha256', $plainToken);
@@ -31,7 +31,7 @@ class AuthenticateApiToken
             ->first();
 
         if (! $apiToken || ($apiToken->expires_at && $apiToken->expires_at->isPast())) {
-            return response()->json(['message' => 'Invalid or expired token.'], 401);
+            return response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn.'], 401);
         }
 
         $apiToken->forceFill(['last_used_at' => Carbon::now()])->save();

@@ -45,6 +45,12 @@ export const apiRequest = async (path, token = '', options = {}) => {
 
   const data = await response.json().catch(() => ({}))
 
+  if (response.status === 401) {
+    clearSession()
+    window.location.href = '/login'
+    throw new ApiRequestError(data.message ?? 'Phiên đăng nhập đã hết hạn.', null, 401)
+  }
+
   if (!response.ok) {
     throw new ApiRequestError(
       data.message ?? 'Có lỗi xảy ra khi gọi API.',
@@ -72,7 +78,7 @@ const api = {
   getProjects: (token) => apiRequest('/projects', token),
 
   // ── Groups ──────────────────────────────────────────────────────────────────
-  getGroups: (token, projectId) => apiRequest(`/projects/${projectId}/groups`, token),
+  getGroups: (token, projectId) => apiRequest(`/groups?project_id=${projectId}`, token),
 
   createGroup: (token, data) => apiRequest('/groups', token, { method: 'POST', body: data }),
 
@@ -80,7 +86,7 @@ const api = {
 
   deleteGroup: (token, id) => apiRequest(`/groups/${id}`, token, { method: 'DELETE' }),
 
-  reorderGroups: (token, data) => apiRequest('/groups/reorder', token, { method: 'POST', body: data }),
+  reorderGroups: (token, data) => apiRequest('/groups/reorder', token, { method: 'PUT', body: data }),
 
   // ── Requirements ────────────────────────────────────────────────────────────
   getRequirements: (token, projectId, filters = {}) => {
@@ -95,7 +101,7 @@ const api = {
   deleteRequirement: (token, id) => apiRequest(`/requirements/${id}`, token, { method: 'DELETE' }),
 
   moveRequirementGroup: (token, id, data) =>
-    apiRequest(`/requirements/${id}/move-group`, token, { method: 'POST', body: data }),
+    apiRequest(`/requirements/${id}/move-group`, token, { method: 'PUT', body: data }),
 
   getRequirement: (token, id) => apiRequest(`/requirements/${id}`, token),
 

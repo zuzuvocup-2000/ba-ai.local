@@ -19,7 +19,7 @@ class CheckPermission
         $permission = (string) ($request->route()?->defaults['permission'] ?? '');
 
         if (! $user || ! $permission || ! $user->hasPermission($permission)) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return response()->json(['message' => 'Bạn không có quyền truy cập.'], 403);
         }
 
         return $next($request);
