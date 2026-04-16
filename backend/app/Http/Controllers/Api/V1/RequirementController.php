@@ -20,8 +20,8 @@ class RequirementController extends Controller
 
     public function index(ListRequirementsRequest $request)
     {
-        $filters = $request->only(['project_id', 'group_id', 'status']);
-        $requirements = $this->requirementService->list($filters);
+        $filters = $request->only(['group_id', 'status']);
+        $requirements = $this->requirementService->list($request->integer('project_id'), $filters);
 
         return ApiResponse::success($requirements, 'Lấy danh sách yêu cầu thành công.');
     }
