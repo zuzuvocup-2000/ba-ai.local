@@ -1,0 +1,24 @@
+{
+  "roles": [
+    { "slug": "super-admin", "name": "Super Admin" },
+    { "slug": "project-manager", "name": "Project Manager" },
+    { "slug": "ba", "name": "BA" },
+    { "slug": "dev", "name": "Dev" }
+  ],
+  "permissions": [
+    { "slug": "users.view", "name": "Xem tài khoản" },
+    { "slug": "users.create", "name": "Tạo tài khoản" },
+    { "slug": "users.edit", "name": "Sửa tài khoản" },
+    { "slug": "users.delete", "name": "Xóa tài khoản" },
+    { "slug": "settings.view", "name": "Xem cấu hình" },
+    { "slug": "settings.edit", "name": "Sửa cấu hình" },
+    { "slug": "logs.view", "name": "Xem nhật ký" },
+    { "slug": "projects.view", "name": "Xem dự án" },
+    { "slug": "projects.create", "name": "Tạo dự án" },
+    { "slug": "projects.edit", "name": "Sửa dự án" },
+    { "slug": "projects.delete", "name": "Xóa dự án" },
+    { "slug": "roles.view", "name": "Xem vai trò và quyền" },
+    { "slug": "roles.edit", "name": "Sửa quyền vai trò" }
+  ]
+}
+

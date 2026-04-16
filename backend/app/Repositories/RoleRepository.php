@@ -14,5 +14,12 @@ class RoleRepository
             ->orderBy('id')
             ->get();
     }
+
+    public function findWithPermissions(int $roleId): ?Role
+    {
+        return Role::query()
+            ->with('permissions')
+            ->find($roleId);
+    }
 }
 

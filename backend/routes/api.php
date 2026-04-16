@@ -21,7 +21,15 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware('auth.token')->group(function () {
-            Route::get('/roles', [RoleController::class, 'index']);
+            Route::get('/roles', [RoleController::class, 'index'])
+                ->defaults('permission', 'roles.view')
+                ->middleware('permission');
+            Route::get('/roles/permissions', [RoleController::class, 'permissions'])
+                ->defaults('permission', 'roles.view')
+                ->middleware('permission');
+            Route::put('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])
+                ->defaults('permission', 'roles.edit')
+                ->middleware('permission');
 
             Route::get('/settings', [SettingController::class, 'index'])
                 ->defaults('permission', 'settings.view')

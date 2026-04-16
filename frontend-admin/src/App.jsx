@@ -4,14 +4,16 @@ import { apiRequest } from './api'
 import { AdminLayout } from './features/dashboard/layout/AdminLayout'
 import { OverviewPage } from './features/dashboard/pages/OverviewPage'
 import { LogListPage } from './features/logs/pages/LogListPage'
-import { ProjectsPage } from './features/projects/pages/ProjectsPage'
 import { RolesPage } from './features/roles/pages/RolesPage'
 import { GeneralSettingsPage } from './features/settings/pages/GeneralSettingsPage'
 import { UsersPage } from './features/users/pages/UsersPage'
 import { useAdminDashboard } from './hooks/useAdminDashboard'
+import { ProjectCreatePage } from './features/projects/pages/ProjectCreatePage'
+import { ProjectEditPage } from './features/projects/pages/ProjectEditPage'
+import { ProjectListPage } from './features/projects/pages/ProjectListPage'
 
 function App() {
-  const { auth, data, loginState, userForm, projectForm } = useAdminDashboard()
+  const { auth, data, loginState, userForm, projectForm, roleForm } = useAdminDashboard()
 
   const fetchSettings = async (token) => {
     return apiRequest('/settings', token)
@@ -99,18 +101,44 @@ function App() {
         <Route
           path="projects"
           element={
-            <ProjectsPage
+            <ProjectListPage
               projects={data.projects}
               users={data.users}
+              loading={data.loading}
+              can={data.can}
+              onDeleteProject={projectForm.deleteProject}
+              onSyncProjectMembers={projectForm.syncProjectMembers}
+              error={data.error}
+            />
+          }
+        />
+        <Route
+          path="projects/create"
+          element={
+            <ProjectCreatePage
               loading={data.loading}
               can={data.can}
               projectForm={projectForm.projectForm}
               setProjectForm={projectForm.setProjectForm}
               onSubmitProject={projectForm.submitProject}
               onResetProjectForm={projectForm.resetProjectForm}
+              fieldErrors={projectForm.projectFormErrors}
+              error={data.error}
+            />
+          }
+        />
+        <Route
+          path="projects/:projectId/edit"
+          element={
+            <ProjectEditPage
+              loading={data.loading}
+              can={data.can}
+              projects={data.projects}
+              projectForm={projectForm.projectForm}
+              setProjectForm={projectForm.setProjectForm}
+              onSubmitProject={projectForm.submitProject}
+              onResetProjectForm={projectForm.resetProjectForm}
               onEditProject={projectForm.editProject}
-              onDeleteProject={projectForm.deleteProject}
-              onSyncProjectMembers={projectForm.syncProjectMembers}
               fieldErrors={projectForm.projectFormErrors}
               error={data.error}
             />
@@ -121,6 +149,10 @@ function App() {
           element={
             <RolesPage
               roles={data.roles}
+              permissions={data.permissions}
+              can={data.can}
+              loading={data.loading}
+              onUpdatePermissions={roleForm.updateRolePermissions}
               error={data.error}
             />
           }

@@ -9,6 +9,7 @@ export function useAdminDashboard() {
   const [token, setToken] = useState(getSession()?.token ?? '')
   const [user, setUser] = useState(getSession()?.user ?? null)
   const [roles, setRoles] = useState([])
+  const [permissions, setPermissions] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -64,13 +65,15 @@ export function useAdminDashboard() {
   }, [])
 
   const fetchBootstrap = useCallback(async (activeToken) => {
-    const [meData, roleData] = await Promise.all([
+    const [meData, roleData, permissionData] = await Promise.all([
       apiRequest('/auth/me', activeToken),
       apiRequest('/roles', activeToken),
+      apiRequest('/roles/permissions', activeToken),
     ])
 
     setUser(meData)
     setRoles(roleData)
+    setPermissions(permissionData)
     setSession(activeToken, meData)
 
     if (meData.permissions.includes('users.view')) {
@@ -96,6 +99,7 @@ export function useAdminDashboard() {
         setToken('')
         setUser(null)
         setRoles([])
+        setPermissions([])
         setUsers([])
         setProjects([])
       })
@@ -134,6 +138,7 @@ export function useAdminDashboard() {
     setToken('')
     setUser(null)
     setRoles([])
+    setPermissions([])
     setUsers([])
     setProjects([])
     resetUserForm()
@@ -278,9 +283,27 @@ export function useAdminDashboard() {
     }
   }
 
+  const updateRolePermissions = async (roleId, permissionSlugs) => {
+    setLoading(true)
+    setError('')
+    try {
+      await apiRequest(`/roles/${roleId}/permissions`, token, {
+        method: 'PUT',
+        body: { permission_slugs: permissionSlugs },
+      })
+      const roleData = await apiRequest('/roles', token)
+      setRoles(roleData)
+    } catch (requestError) {
+      setError(requestError.message)
+      throw requestError
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     auth: { token, user, loginForm, setLoginForm, login, logout },
-    data: { roles, users, projects, loading, error, setError, can },
+    data: { roles, permissions, users, projects, loading, error, setError, can },
     loginState: { loginErrors },
     userForm: { userForm, setUserForm, resetUserForm, editUser, submitUser, deleteUser, userFormErrors },
     projectForm: {
@@ -292,6 +315,9 @@ export function useAdminDashboard() {
       deleteProject,
       syncProjectMembers,
       projectFormErrors,
+    },
+    roleForm: {
+      updateRolePermissions,
     },
   }
 }

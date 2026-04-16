@@ -27,6 +27,8 @@ class RolePermissionSeeder extends Seeder
             'projects.create' => 'Create projects',
             'projects.edit' => 'Edit projects',
             'projects.delete' => 'Delete projects',
+            'roles.view' => 'View roles',
+            'roles.edit' => 'Edit role permissions',
         ];
 
         $permissions = collect($permissionMap)->map(function (string $name, string $slug) {
@@ -37,8 +39,8 @@ class RolePermissionSeeder extends Seeder
         });
 
         $admin = Role::query()->updateOrCreate(
-            ['slug' => 'admin'],
-            ['name' => 'Admin']
+            ['slug' => 'super-admin'],
+            ['name' => 'Super Admin']
         );
 
         $projectManager = Role::query()->updateOrCreate(
@@ -58,7 +60,7 @@ class RolePermissionSeeder extends Seeder
 
         $admin->permissions()->sync($permissions->pluck('id'));
         $projectManager->permissions()->sync(
-            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view', 'projects.view', 'projects.create', 'projects.edit'])->pluck('id')
+            $permissions->whereIn('slug', ['users.view', 'users.edit', 'settings.view', 'logs.view', 'projects.view', 'projects.create', 'projects.edit', 'roles.view'])->pluck('id')
         );
         $ba->permissions()->sync($permissions->whereIn('slug', ['logs.view', 'projects.view'])->pluck('id'));
         $dev->permissions()->sync($permissions->whereIn('slug', ['logs.view', 'projects.view'])->pluck('id'));
