@@ -66,6 +66,41 @@ export const apiRequest = async (path, token = '', options = {}) => {
   return data
 }
 
+export const uploadRequest = async (path, token, file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (response.status === 401) {
+    clearSession()
+    window.location.href = '/login'
+    throw new ApiRequestError(data.message ?? 'Phiên đăng nhập đã hết hạn.', null, 401)
+  }
+
+  if (!response.ok) {
+    throw new ApiRequestError(
+      data.message ?? 'Có lỗi xảy ra khi tải tệp lên.',
+      data.errors ?? null,
+      response.status
+    )
+  }
+
+  if (typeof data === 'object' && data !== null && 'data' in data) {
+    return data.data
+  }
+
+  return data
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const api = {
   login: (body) => apiRequest('/auth/login', '', { method: 'POST', body }),
@@ -104,6 +139,14 @@ const api = {
     apiRequest(`/requirements/${id}/move-group`, token, { method: 'PUT', body: data }),
 
   getRequirement: (token, id) => apiRequest(`/requirements/${id}`, token),
+
+  // ── Requirement Attachments ─────────────────────────────────────────────────
+  listAttachments: (token, requirementId) =>
+    apiRequest(`/requirements/${requirementId}/attachments`, token),
+  uploadAttachment: (token, requirementId, file) =>
+    uploadRequest(`/requirements/${requirementId}/attachments`, token, file),
+  deleteAttachment: (token, requirementId, attachmentId) =>
+    apiRequest(`/requirements/${requirementId}/attachments/${attachmentId}`, token, { method: 'DELETE' }),
 
   // ── Analyses ────────────────────────────────────────────────────────────────
   getAnalysis: (token, requirementId, type) =>

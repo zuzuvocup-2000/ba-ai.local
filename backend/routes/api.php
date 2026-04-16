@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\DocumentVersionController;
 use App\Http\Controllers\Api\V1\LogController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\RequirementAnalysisController;
+use App\Http\Controllers\Api\V1\RequirementAttachmentController;
 use App\Http\Controllers\Api\V1\RequirementController;
 use App\Http\Controllers\Api\V1\RequirementGroupController;
 use App\Http\Controllers\Api\V1\RoleController;
@@ -171,6 +172,17 @@ Route::prefix('v1')->group(function () {
                 ->defaults('permission', 'requirements.delete')
                 ->middleware('permission');
             Route::put('/requirements/{requirement}/move-group', [RequirementController::class, 'moveGroup'])
+                ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+
+            // Requirement Attachments
+            Route::get('/requirements/{requirement}/attachments', [RequirementAttachmentController::class, 'index'])
+                ->defaults('permission', 'requirements.view')
+                ->middleware('permission');
+            Route::post('/requirements/{requirement}/attachments', [RequirementAttachmentController::class, 'store'])
+                ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+            Route::delete('/requirements/{requirement}/attachments/{attachment}', [RequirementAttachmentController::class, 'destroy'])
                 ->defaults('permission', 'requirements.edit')
                 ->middleware('permission');
 

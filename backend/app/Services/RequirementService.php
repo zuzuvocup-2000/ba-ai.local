@@ -39,7 +39,7 @@ class RequirementService
     {
         $this->requirementRepository->update($req, $payload);
         $req->refresh();
-        $req->load(['group', 'documents', 'analyses', 'createdBy']);
+        $req->load(['group', 'documents', 'analyses', 'attachments', 'createdBy']);
 
         return $req;
     }
@@ -49,14 +49,16 @@ class RequirementService
         return $this->requirementRepository->delete($req);
     }
 
-    public function moveGroup(Requirement $req, ?int $newGroupId, ?int $sortOrder = null): Requirement
+    public function moveGroup(Requirement $req, array $payload): Requirement
     {
+        $newGroupId = $payload['group_id'] ?? null;
+        $sortOrder  = $payload['sort_order'] ?? null;
         $oldGroupId = $req->group_id;
 
         $updatePayload = ['group_id' => $newGroupId];
 
         if ($sortOrder !== null) {
-            $updatePayload['sort_order'] = $sortOrder;
+            $updatePayload['sort_order'] = (int) $sortOrder;
         }
 
         // Tái tạo mã yêu cầu nếu nhóm thay đổi
@@ -69,7 +71,7 @@ class RequirementService
 
         $this->requirementRepository->update($req, $updatePayload);
         $req->refresh();
-        $req->load(['group', 'documents', 'analyses', 'createdBy']);
+        $req->load(['group', 'documents', 'analyses', 'attachments', 'createdBy']);
 
         return $req;
     }
@@ -79,25 +81,27 @@ class RequirementService
         $group = $req->relationLoaded('group') ? $req->group : null;
 
         return [
-            'id'              => $req->id,
-            'project_id'      => $req->project_id,
-            'group_id'        => $req->group_id,
-            'code'            => $req->code,
-            'title'           => $req->title,
-            'raw_content'     => $req->raw_content,
-            'tags'            => $req->tags ?? [],
-            'status'          => $req->status,
-            'priority'        => $req->priority,
-            'sort_order'      => $req->sort_order,
-            'group'           => $group ? [
+            'id'                  => $req->id,
+            'project_id'          => $req->project_id,
+            'group_id'            => $req->group_id,
+            'code'                => $req->code,
+            'title'               => $req->title,
+            'raw_content'         => $req->raw_content,
+            'screens'             => $req->screens ?? [],
+            'tags'                => $req->tags ?? [],
+            'status'              => $req->status,
+            'priority'            => $req->priority,
+            'sort_order'          => $req->sort_order,
+            'group'               => $group ? [
                 'id'     => $group->id,
                 'name'   => $group->name,
                 'prefix' => $group->prefix,
             ] : null,
-            'documents_count' => $req->relationLoaded('documents') ? $req->documents->count() : 0,
-            'analyses_count'  => $req->relationLoaded('analyses') ? $req->analyses->count() : 0,
-            'created_by_name' => $req->relationLoaded('createdBy') ? $req->createdBy?->name : null,
-            'created_at'      => $req->created_at,
+            'documents_count'     => $req->relationLoaded('documents') ? $req->documents->count() : 0,
+            'analyses_count'      => $req->relationLoaded('analyses') ? $req->analyses->count() : 0,
+            'attachments_count'   => $req->relationLoaded('attachments') ? $req->attachments->count() : 0,
+            'created_by_name'     => $req->relationLoaded('createdBy') ? $req->createdBy?->name : null,
+            'created_at'          => $req->created_at,
         ];
     }
 

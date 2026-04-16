@@ -70,14 +70,16 @@ export function RequirementsList({ projectId, group, groups = [] }) {
 
   const handleSave = async (formData) => {
     const payload = { ...formData, project_id: resolvedProjectId }
+    let saved
     if (editingReq) {
-      await api.updateRequirement(session.token, editingReq.id, payload)
+      saved = await api.updateRequirement(session.token, editingReq.id, payload)
       showToast('Đã cập nhật yêu cầu', 'success')
     } else {
-      await api.createRequirement(session.token, payload)
+      saved = await api.createRequirement(session.token, payload)
       showToast('Đã thêm yêu cầu mới', 'success')
     }
     loadRequirements()
+    return saved
   }
 
   const handleView = (req) => {

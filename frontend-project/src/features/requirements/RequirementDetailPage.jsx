@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Tag, Calendar, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Tag, Calendar, AlertCircle, Monitor, Paperclip } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { AppLayout } from '../../layout/AppLayout'
 import { Badge } from '../../components/ui/badge'
@@ -15,6 +15,7 @@ export function RequirementDetailPage() {
   const session = getSession()
 
   const [requirement, setRequirement] = useState(null)
+  const [attachments, setAttachments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeSection, setActiveSection] = useState('analysis')
@@ -23,7 +24,11 @@ export function RequirementDetailPage() {
     if (!session?.token || !requirementId) return
     setLoading(true)
     api.getRequirement(session.token, requirementId)
-      .then(setRequirement)
+      .then((req) => {
+        setRequirement(req)
+        return api.listAttachments(session.token, requirementId)
+      })
+      .then(setAttachments)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [requirementId])
@@ -97,6 +102,38 @@ export function RequirementDetailPage() {
                         {tag.trim()}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {/* Screens */}
+                {requirement.screens && requirement.screens.length > 0 && (
+                  <div className="mt-5">
+                    <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      <Monitor size={12} /> Màn hình ({requirement.screens.length})
+                    </p>
+                    <div className="space-y-3">
+                      {requirement.screens.map((screen, idx) => (
+                        <div
+                          key={idx}
+                          className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
+                        >
+                          <p className="font-medium text-slate-800 text-sm">
+                            <span className="mr-2 font-mono text-xs text-slate-400">{idx + 1}.</span>
+                            {screen.name}
+                          </p>
+                          {screen.description && (
+                            <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                              {screen.description}
+                            </p>
+                          )}
+                          {screen.sample_data && (
+                            <pre className="mt-2 rounded bg-white border border-slate-200 px-3 py-2 text-xs text-slate-600 font-mono whitespace-pre-wrap">
+                              {screen.sample_data}
+                            </pre>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -194,6 +231,36 @@ export function RequirementDetailPage() {
                     </div>
                   )}
                 </dl>
+              </Card>
+
+              {/* Related attachments */}
+              <Card className="p-4">
+                <h3 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <Paperclip size={12} /> Tài liệu liên quan
+                </h3>
+                {attachments.length === 0 ? (
+                  <p className="text-xs text-slate-400">Chưa có tài liệu đính kèm.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {attachments.map((att) => (
+                      <li key={att.id} className="flex items-center gap-2">
+                        <a
+                          href={att.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 truncate text-xs text-blue-600 hover:underline"
+                        >
+                          {att.original_name}
+                        </a>
+                        <span className="shrink-0 text-[10px] text-slate-400">
+                          {att.size < 1024 * 1024
+                            ? `${(att.size / 1024).toFixed(1)} KB`
+                            : `${(att.size / (1024 * 1024)).toFixed(1)} MB`}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Card>
 
               {/* Documents quick link */}

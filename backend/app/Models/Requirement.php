@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['project_id', 'group_id', 'code', 'title', 'raw_content', 'tags', 'status', 'priority', 'sort_order', 'created_by', 'updated_by'])]
+#[Fillable(['project_id', 'group_id', 'code', 'title', 'raw_content', 'screens', 'tags', 'status', 'priority', 'sort_order', 'created_by', 'updated_by'])]
 class Requirement extends Model
 {
     protected function casts(): array
     {
         return [
-            'tags' => 'array',
+            'tags'    => 'array',
+            'screens' => 'array',
         ];
     }
 
@@ -35,6 +36,11 @@ class Requirement extends Model
     public function analyses(): HasMany
     {
         return $this->hasMany(RequirementAnalysis::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(RequirementAttachment::class);
     }
 
     public function createdBy(): BelongsTo

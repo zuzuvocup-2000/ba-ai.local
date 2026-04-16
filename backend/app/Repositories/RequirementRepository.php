@@ -27,7 +27,7 @@ class RequirementRepository
     public function findById(int $id): ?Requirement
     {
         return Requirement::query()
-            ->with(['group', 'documents', 'analyses', 'createdBy'])
+            ->with(['group', 'documents', 'analyses', 'attachments', 'createdBy'])
             ->find($id);
     }
 
