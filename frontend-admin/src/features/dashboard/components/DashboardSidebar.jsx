@@ -1,4 +1,4 @@
-import { Briefcase, ChevronDown, KeyRound, LayoutDashboard, LogOut, Settings2, ShieldCheck, Users, X } from 'lucide-react'
+import { Briefcase, ChevronDown, FileText, KeyRound, LayoutDashboard, LogOut, Settings2, ShieldCheck, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -29,9 +29,11 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
     { to: '/admin/users', label: 'Quản lý tài khoản', icon: Users },
     { to: '/admin/projects', label: 'Quản lý dự án', icon: Briefcase },
     { to: '/admin/roles', label: 'Vai trò và quyền', icon: ShieldCheck },
+    { to: '/admin/templates', label: 'Quản lý Template', icon: FileText },
   ]
   const settingItems = [
     { to: '/admin/settings/general', label: 'Cấu hình chung', icon: Settings2 },
+    { to: '/admin/settings/ai', label: 'Cấu hình AI', icon: Settings2 },
   ]
   const logItems = [
     { to: '/admin/logs/login', label: 'Nhật ký đăng nhập', icon: ShieldCheck },

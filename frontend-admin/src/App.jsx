@@ -7,6 +7,8 @@ import { OverviewPage } from './features/dashboard/pages/OverviewPage'
 import { LogListPage } from './features/logs/pages/LogListPage'
 import { RolesPage } from './features/roles/pages/RolesPage'
 import { GeneralSettingsPage } from './features/settings/pages/GeneralSettingsPage'
+import { AiSettingsPage } from './features/settings/pages/AiSettingsPage'
+import { TemplatesPage } from './features/templates/pages/TemplatesPage'
 import { UsersPage } from './features/users/pages/UsersPage'
 import { useAdminDashboard } from './hooks/useAdminDashboard'
 import { ProjectCreatePage } from './features/projects/pages/ProjectCreatePage'
@@ -36,6 +38,47 @@ function App() {
     return apiRequest('/settings', token, {
       method: 'PUT',
       body: { items },
+    })
+  }
+
+  const fetchAiSettings = async (token) => {
+    return apiRequest('/settings?group=ai', token)
+  }
+
+  const updateAiSettings = async (items, token) => {
+    return apiRequest('/settings', token, {
+      method: 'PUT',
+      body: items,
+    })
+  }
+
+  const fetchTemplates = async (token) => {
+    return apiRequest('/templates', token)
+  }
+
+  const createTemplate = async (data, token) => {
+    return apiRequest('/templates', token, {
+      method: 'POST',
+      body: data,
+    })
+  }
+
+  const updateTemplate = async (id, data, token) => {
+    return apiRequest(`/templates/${id}`, token, {
+      method: 'PUT',
+      body: data,
+    })
+  }
+
+  const deleteTemplate = async (id, token) => {
+    return apiRequest(`/templates/${id}`, token, {
+      method: 'DELETE',
+    })
+  }
+
+  const setDefaultTemplate = async (id, token) => {
+    return apiRequest(`/templates/${id}/set-default`, token, {
+      method: 'POST',
     })
   }
 
@@ -189,6 +232,33 @@ function App() {
               error={data.error}
               fetchSettings={fetchSettings}
               updateSettings={updateSettings}
+              onNotify={notify}
+            />
+          }
+        />
+        <Route
+          path="settings/ai"
+          element={
+            <AiSettingsPage
+              token={auth.token}
+              error={data.error}
+              fetchAiSettings={fetchAiSettings}
+              updateAiSettings={updateAiSettings}
+              onNotify={notify}
+            />
+          }
+        />
+        <Route
+          path="templates"
+          element={
+            <TemplatesPage
+              token={auth.token}
+              error={data.error}
+              fetchTemplates={fetchTemplates}
+              createTemplate={createTemplate}
+              updateTemplate={updateTemplate}
+              deleteTemplate={deleteTemplate}
+              setDefaultTemplate={setDefaultTemplate}
               onNotify={notify}
             />
           }
