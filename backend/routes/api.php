@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\DocumentTemplateController;
+use App\Http\Controllers\Api\V1\DocumentVersionController;
 use App\Http\Controllers\Api\V1\LogController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\RequirementAnalysisController;
@@ -205,6 +206,14 @@ Route::prefix('v1')->group(function () {
             Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])
                 ->defaults('permission', 'documents.delete')
                 ->middleware('permission');
+
+            // Document Versions
+            Route::get('/documents/{document}/versions', [DocumentVersionController::class, 'index'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::get('/documents/{document}/versions/{versionNumber}', [DocumentVersionController::class, 'show'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/documents/{document}/versions/{versionNumber}/restore', [DocumentVersionController::class, 'restore'])
+                ->defaults('permission', 'documents.edit')->middleware('permission');
         });
 
         Route::get('/public/settings/resolve', [SettingController::class, 'resolve']);

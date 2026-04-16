@@ -6,6 +6,8 @@ use App\Models\Document;
 
 class DocumentService
 {
+    public function __construct(private readonly DocumentVersionService $versionService) {}
+
     public function listByRequirement(int $requirementId): array
     {
         return Document::query()
@@ -20,6 +22,19 @@ class DocumentService
 
     public function update(Document $doc, array $payload): Document
     {
+        $contentChanging = array_key_exists('content', $payload) && $payload['content'] !== $doc->content;
+
+        if ($contentChanging && $doc->content) {
+            // Save current content as a version before overwriting
+            $changeType    = $payload['_change_type'] ?? 'manual_edit';
+            $changeSummary = $payload['_change_summary'] ?? 'Chỉnh sửa thủ công';
+            $userId        = $payload['updated_by'] ?? auth()->id();
+            $this->versionService->createSnapshot($doc, $changeSummary, $changeType, $userId);
+        }
+
+        // Remove meta fields before saving
+        unset($payload['_change_type'], $payload['_change_summary']);
+
         $doc->update($payload);
         $doc->refresh();
 

@@ -22,6 +22,7 @@ class AiGenerationService
     public function __construct(
         private readonly ClaudeClient $claudeClient,
         private readonly MongoLogService $mongoLogService,
+        private readonly DocumentVersionService $versionService,
     ) {}
 
     /** Generate a document from a RequirementAnalysis */
@@ -73,6 +74,15 @@ class AiGenerationService
                     'created_by'  => $userId,
                     'updated_by'  => $userId,
                 ]
+            );
+
+            // 4b. Create version snapshot
+            $changeType = $document->wasRecentlyCreated ? 'initial' : 'ai_regenerated';
+            $this->versionService->createSnapshot(
+                $document,
+                "Tự động sinh bởi AI ({$result['model']})",
+                $changeType,
+                $userId
             );
 
             // 5. Update log

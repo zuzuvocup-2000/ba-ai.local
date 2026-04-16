@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { X, Edit2, Save, XCircle } from 'lucide-react'
+import { X, Edit2, Save, XCircle, History } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { Button } from '../../components/ui/button'
 import { Textarea } from '../../components/ui/textarea'
@@ -7,6 +7,7 @@ import { Spinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
 import { Toast } from '../../components/ui/toast'
 import { Badge } from '../../components/ui/badge'
+import { VersionHistory } from './VersionHistory'
 
 const TYPE_LABELS = {
   brd: 'BRD',
@@ -175,6 +176,7 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
   const [editing, setEditing] = useState(false)
   const [editContent, setEditContent] = useState(document?.content ?? '')
   const [saving, setSaving] = useState(false)
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
   const handleSave = useCallback(async () => {
@@ -220,16 +222,26 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
         </span>
         <div className="flex items-center gap-1 ml-auto">
           {!editing ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setEditContent(document.content ?? '')
-                setEditing(true)
-              }}
-            >
-              <Edit2 size={13} /> Sửa
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowVersionHistory((v) => !v)}
+                className={showVersionHistory ? 'text-blue-600 bg-blue-50' : ''}
+              >
+                <History size={13} /> Lịch sử
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setEditContent(document.content ?? '')
+                  setEditing(true)
+                }}
+              >
+                <Edit2 size={13} /> Sửa
+              </Button>
+            </>
           ) : (
             <>
               <Button size="sm" variant="primary" loading={saving} onClick={handleSave} disabled={saving}>
@@ -276,6 +288,18 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
               ? JSON.stringify(document.generation_log)
               : document.generation_log}
           </div>
+        )}
+
+        {/* Version history panel */}
+        {showVersionHistory && (
+          <VersionHistory
+            documentId={document.id}
+            currentContent={document.content}
+            onRestored={(updatedDoc) => {
+              onUpdate?.(updatedDoc)
+              setShowVersionHistory(false)
+            }}
+          />
         )}
       </div>
     </div>

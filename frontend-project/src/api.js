@@ -130,6 +130,16 @@ const api = {
       method: 'POST',
       body: { document_types: documentTypes },
     }),
+
+  // ── Document Versions ────────────────────────────────────────────────────────
+  listVersions: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/versions`, token),
+
+  getVersion: (token, documentId, versionNumber) =>
+    apiRequest(`/documents/${documentId}/versions/${versionNumber}`, token),
+
+  restoreVersion: (token, documentId, versionNumber) =>
+    apiRequest(`/documents/${documentId}/versions/${versionNumber}/restore`, token, { method: 'POST' }),
 }
 
 export default api
