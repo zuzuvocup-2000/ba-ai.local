@@ -13,7 +13,8 @@
       "Bash(grep -v \"^$\")",
       "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build\")",
       "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-project && npm run build 2>&1\")",
-      "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build 2>&1\")"
+      "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build 2>&1\")",
+      "Bash(git rm *)"
     ]
   }
 }

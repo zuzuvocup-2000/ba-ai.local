@@ -5,6 +5,15 @@ import { Button } from '../../../components/ui/button'
 // All keys managed on this page
 const ALL_KEYS = ['ai_provider', 'ai_api_key', 'ai_model', 'openai_api_key', 'openai_model', 'ai_max_tokens']
 
+const AI_SETTING_META = {
+  ai_provider:    { name: 'AI Provider',       type: 'string', group: 'ai', sort_order: 95  },
+  ai_api_key:     { name: 'Anthropic API Key', type: 'string', group: 'ai', sort_order: 100 },
+  ai_model:       { name: 'Anthropic Model',   type: 'string', group: 'ai', sort_order: 110 },
+  openai_api_key: { name: 'OpenAI API Key',    type: 'string', group: 'ai', sort_order: 115 },
+  openai_model:   { name: 'OpenAI Model',      type: 'string', group: 'ai', sort_order: 117 },
+  ai_max_tokens:  { name: 'Max Tokens',        type: 'int',    group: 'ai', sort_order: 120 },
+}
+
 const ANTHROPIC_MODELS = ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-4-5-20251001']
 const OPENAI_MODELS    = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo']
 
@@ -84,7 +93,15 @@ export function AiSettingsPage({ token, error, fetchAiSettings, updateAiSettings
     setSaving(true)
     setSaved(false)
     try {
-      const payload = ALL_KEYS.map((key) => ({ key, value: vals[key] ?? '' }))
+      const payload = ALL_KEYS.map((key) => ({
+        key,
+        name:       AI_SETTING_META[key].name,
+        value:      vals[key] ?? '',
+        type:       AI_SETTING_META[key].type,
+        group:      AI_SETTING_META[key].group,
+        is_public:  false,
+        sort_order: AI_SETTING_META[key].sort_order,
+      }))
       await updateAiSettings(payload, token)
       setSaved(true)
       onNotify?.('success', 'Cập nhật cấu hình AI thành công.')
