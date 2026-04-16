@@ -140,6 +140,16 @@ const api = {
 
   restoreVersion: (token, documentId, versionNumber) =>
     apiRequest(`/documents/${documentId}/versions/${versionNumber}/restore`, token, { method: 'POST' }),
+
+  // ── AI Chat ────────────────────────────────────────────────────────────────
+  chatDocument: (token, documentId, data) =>
+    apiRequest(`/documents/${documentId}/chat`, token, { method: 'POST', body: data }),
+  listProposals: (token, documentId) =>
+    apiRequest(`/documents/${documentId}/proposals`, token),
+  acceptProposal: (token, documentId, proposalId) =>
+    apiRequest(`/documents/${documentId}/proposals/${proposalId}/accept`, token, { method: 'POST' }),
+  dismissProposal: (token, documentId, proposalId) =>
+    apiRequest(`/documents/${documentId}/proposals/${proposalId}/dismiss`, token, { method: 'POST' }),
 }
 
 export default api

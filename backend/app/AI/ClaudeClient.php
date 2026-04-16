@@ -62,4 +62,52 @@ class ClaudeClient
             'duration_ms'   => $durationMs,
         ];
     }
+
+    /**
+     * Multi-turn conversation: takes full messages array instead of single userPrompt.
+     *
+     * @param  array<int, array{role: string, content: string}>  $messages
+     * @return array{content: string, input_tokens: int, output_tokens: int, model: string, duration_ms: int}
+     * @throws \RuntimeException
+     */
+    public function generateMultiTurn(string $systemPrompt, array $messages): array
+    {
+        $apiKey = $this->settingRepository->findByKey('ai_api_key')?->value ?? '';
+        if (empty($apiKey)) {
+            throw new \RuntimeException('API key AI chưa được cấu hình. Vui lòng vào Settings → AI để thiết lập.');
+        }
+
+        $model     = $this->settingRepository->findByKey('ai_model')?->value ?: self::DEFAULT_MODEL;
+        $maxTokens = (int) ($this->settingRepository->findByKey('ai_max_tokens')?->value ?? self::DEFAULT_MAX_TOKENS);
+
+        $startMs = (int) round(microtime(true) * 1000);
+
+        $response = Http::withHeaders([
+            'x-api-key'         => $apiKey,
+            'anthropic-version' => self::ANTHROPIC_VERSION,
+            'content-type'      => 'application/json',
+        ])->timeout(120)->post(self::API_URL, [
+            'model'      => $model,
+            'max_tokens' => $maxTokens,
+            'system'     => $systemPrompt,
+            'messages'   => $messages,
+        ]);
+
+        $durationMs = (int) round(microtime(true) * 1000) - $startMs;
+
+        if ($response->failed()) {
+            $errorBody = $response->json('error.message') ?? $response->body();
+            throw new \RuntimeException("Anthropic API lỗi [{$response->status()}]: {$errorBody}");
+        }
+
+        $json = $response->json();
+
+        return [
+            'content'       => $json['content'][0]['text'] ?? '',
+            'input_tokens'  => $json['usage']['input_tokens'] ?? 0,
+            'output_tokens' => $json['usage']['output_tokens'] ?? 0,
+            'model'         => $json['model'] ?? $model,
+            'duration_ms'   => $durationMs,
+        ];
+    }
 }

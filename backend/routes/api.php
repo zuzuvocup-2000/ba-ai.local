@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AiChatController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DocumentChangeProposalController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\DocumentTemplateController;
 use App\Http\Controllers\Api\V1\DocumentVersionController;
@@ -213,6 +215,18 @@ Route::prefix('v1')->group(function () {
             Route::get('/documents/{document}/versions/{versionNumber}', [DocumentVersionController::class, 'show'])
                 ->defaults('permission', 'documents.view')->middleware('permission');
             Route::post('/documents/{document}/versions/{versionNumber}/restore', [DocumentVersionController::class, 'restore'])
+                ->defaults('permission', 'documents.edit')->middleware('permission');
+
+            // AI Chat
+            Route::post('/documents/{document}/chat', [AiChatController::class, 'chat'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+
+            // Change Proposals
+            Route::get('/documents/{document}/proposals', [DocumentChangeProposalController::class, 'index'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/documents/{document}/proposals/{proposal}/accept', [DocumentChangeProposalController::class, 'accept'])
+                ->defaults('permission', 'documents.edit')->middleware('permission');
+            Route::post('/documents/{document}/proposals/{proposal}/dismiss', [DocumentChangeProposalController::class, 'dismiss'])
                 ->defaults('permission', 'documents.edit')->middleware('permission');
         });
 

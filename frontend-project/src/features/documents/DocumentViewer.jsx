@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { X, Edit2, Save, XCircle, History } from 'lucide-react'
+import { X, Edit2, Save, XCircle, History, MessageSquare } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { Button } from '../../components/ui/button'
 import { Textarea } from '../../components/ui/textarea'
@@ -8,6 +8,7 @@ import { useToast } from '../../components/ui/toast'
 import { Toast } from '../../components/ui/toast'
 import { Badge } from '../../components/ui/badge'
 import { VersionHistory } from './VersionHistory'
+import { ChatPanel } from './ChatPanel'
 
 const TYPE_LABELS = {
   brd: 'BRD',
@@ -173,37 +174,40 @@ function renderMarkdown(content) {
 
 export function DocumentViewer({ document, onClose, onUpdate }) {
   const session = getSession()
+  const [doc, setDoc] = useState(document)
   const [editing, setEditing] = useState(false)
   const [editContent, setEditContent] = useState(document?.content ?? '')
   const [saving, setSaving] = useState(false)
   const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const [showChat, setShowChat] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
   const handleSave = useCallback(async () => {
-    if (!document?.id) return
+    if (!doc?.id) return
     setSaving(true)
     try {
-      const updated = await api.updateDocument(session.token, document.id, { content: editContent })
+      const updated = await api.updateDocument(session.token, doc.id, { content: editContent })
       showToast('Đã lưu tài liệu', 'success')
       setEditing(false)
+      setDoc(updated)
       onUpdate?.(updated)
     } catch (err) {
       showToast(err.message ?? 'Lưu thất bại', 'error')
     } finally {
       setSaving(false)
     }
-  }, [document?.id, editContent, session?.token, onUpdate, showToast])
+  }, [doc?.id, editContent, session?.token, onUpdate, showToast])
 
   const handleCancelEdit = useCallback(() => {
-    setEditContent(document?.content ?? '')
+    setEditContent(doc?.content ?? '')
     setEditing(false)
-  }, [document?.content])
+  }, [doc?.content])
 
-  if (!document) return null
+  if (!doc) return null
 
-  const typeLabel = TYPE_LABELS[document.type] ?? document.type
-  const statusLabel = DOC_STATUS_LABELS[document.status] ?? document.status
-  const statusColor = DOC_STATUS_COLORS[document.status] ?? 'bg-slate-100 text-slate-600'
+  const typeLabel = TYPE_LABELS[doc.type] ?? doc.type
+  const statusLabel = DOC_STATUS_LABELS[doc.status] ?? doc.status
+  const statusColor = DOC_STATUS_COLORS[doc.status] ?? 'bg-slate-100 text-slate-600'
 
   return (
     <div className="mt-2 rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -218,7 +222,7 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
           {statusLabel}
         </span>
         <span className="flex-1 text-sm font-medium text-slate-800 truncate">
-          {document.title}
+          {doc.title}
         </span>
         <div className="flex items-center gap-1 ml-auto">
           {!editing ? (
@@ -234,8 +238,16 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
               <Button
                 size="sm"
                 variant="ghost"
+                onClick={() => setShowChat((v) => !v)}
+                className={showChat ? 'text-purple-600 bg-purple-50' : ''}
+              >
+                <MessageSquare size={13} /> AI Chat
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => {
-                  setEditContent(document.content ?? '')
+                  setEditContent(doc.content ?? '')
                   setEditing(true)
                 }}
               >
@@ -276,32 +288,46 @@ export function DocumentViewer({ document, onClose, onUpdate }) {
         ) : (
           <div
             className="prose prose-sm max-w-none overflow-auto max-h-[60vh] text-slate-700"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(document.content) }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(doc.content) }}
           />
         )}
 
         {/* Generation log */}
-        {document.generation_log && (
+        {doc.generation_log && (
           <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
             <span className="font-medium">Log:</span>{' '}
-            {typeof document.generation_log === 'object'
-              ? JSON.stringify(document.generation_log)
-              : document.generation_log}
+            {typeof doc.generation_log === 'object'
+              ? JSON.stringify(doc.generation_log)
+              : doc.generation_log}
           </div>
         )}
 
         {/* Version history panel */}
         {showVersionHistory && (
           <VersionHistory
-            documentId={document.id}
-            currentContent={document.content}
+            documentId={doc.id}
+            currentContent={doc.content}
             onRestored={(updatedDoc) => {
+              setDoc(updatedDoc)
               onUpdate?.(updatedDoc)
               setShowVersionHistory(false)
             }}
           />
         )}
       </div>
+
+      {/* AI Chat panel (fixed overlay) */}
+      {showChat && (
+        <ChatPanel
+          document={doc}
+          onDocumentUpdated={(updatedDoc) => {
+            setDoc(updatedDoc)
+            onUpdate?.(updatedDoc)
+            setShowChat(false)
+          }}
+          onClose={() => setShowChat(false)}
+        />
+      )}
     </div>
   )
 }
