@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AiChatController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ChecklistController;
 use App\Http\Controllers\Api\V1\DocumentChangeProposalController;
 use App\Http\Controllers\Api\V1\DocumentController;
+use App\Http\Controllers\Api\V1\DocumentReviewController;
 use App\Http\Controllers\Api\V1\DocumentTemplateController;
 use App\Http\Controllers\Api\V1\DocumentVersionController;
 use App\Http\Controllers\Api\V1\LogController;
@@ -228,6 +230,30 @@ Route::prefix('v1')->group(function () {
                 ->defaults('permission', 'documents.edit')->middleware('permission');
             Route::post('/documents/{document}/proposals/{proposal}/dismiss', [DocumentChangeProposalController::class, 'dismiss'])
                 ->defaults('permission', 'documents.edit')->middleware('permission');
+
+            // Document Reviews
+            Route::get('/documents/{document}/reviews', [DocumentReviewController::class, 'index'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/documents/{document}/submit-review', [DocumentReviewController::class, 'submitReview'])
+                ->defaults('permission', 'documents.edit')->middleware('permission');
+            Route::post('/documents/{document}/approve', [DocumentReviewController::class, 'approve'])
+                ->defaults('permission', 'documents.approve')->middleware('permission');
+            Route::post('/documents/{document}/reject', [DocumentReviewController::class, 'reject'])
+                ->defaults('permission', 'documents.approve')->middleware('permission');
+
+            // Checklists
+            Route::get('/documents/{document}/checklist', [ChecklistController::class, 'show'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/documents/{document}/checklist/generate', [ChecklistController::class, 'generate'])
+                ->defaults('permission', 'checklist.review')->middleware('permission');
+
+            // Checklist Items
+            Route::put('/checklist-items/{item}', [ChecklistController::class, 'updateItem'])
+                ->defaults('permission', 'checklist.submit')->middleware('permission');
+            Route::post('/checklist-items/{item}/review', [ChecklistController::class, 'reviewItem'])
+                ->defaults('permission', 'checklist.review')->middleware('permission');
+            Route::post('/checklist-items/{item}/comments', [ChecklistController::class, 'addComment'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
         });
 
         Route::get('/public/settings/resolve', [SettingController::class, 'resolve']);

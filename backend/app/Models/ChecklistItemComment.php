@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['item_id', 'author_id', 'author_role', 'comment_type', 'content', 'is_resolved', 'resolved_by', 'resolved_at', 'created_by', 'updated_by'])]
+#[Fillable(['item_id', 'comment', 'type', 'created_by', 'author_id', 'author_role', 'comment_type', 'content', 'is_resolved', 'resolved_by', 'resolved_at', 'updated_by'])]
 class ChecklistItemComment extends Model
 {
     protected function casts(): array
@@ -20,6 +20,11 @@ class ChecklistItemComment extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(ChecklistItem::class, 'item_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function author(): BelongsTo
