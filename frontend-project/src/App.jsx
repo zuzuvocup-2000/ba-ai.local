@@ -4,6 +4,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { ProjectsPage } from './features/projects/ProjectsPage'
 import { GroupsPage } from './features/groups/GroupsPage'
 import { RequirementDetailPage } from './features/requirements/RequirementDetailPage'
+import { RequirementFormPage } from './features/requirements/RequirementFormPage'
 
 // ── Protected route wrapper ──────────────────────────────────────────────────
 function Protected({ children }) {
@@ -43,6 +44,22 @@ export default function App() {
         element={
           <Protected>
             <GroupsPage />
+          </Protected>
+        }
+      />
+      <Route
+        path="/projects/:projectId/requirements/new"
+        element={
+          <Protected>
+            <RequirementFormPage />
+          </Protected>
+        }
+      />
+      <Route
+        path="/projects/:projectId/requirements/:requirementId/edit"
+        element={
+          <Protected>
+            <RequirementFormPage />
           </Protected>
         }
       />

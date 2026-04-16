@@ -174,6 +174,7 @@ export function GroupsPage() {
               projectId={Number(projectId)}
               group={selectedGroup}
               groups={groups}
+              project={project}
             />
           )}
         </main>

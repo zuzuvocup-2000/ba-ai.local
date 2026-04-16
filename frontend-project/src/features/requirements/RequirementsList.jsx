@@ -8,7 +8,6 @@ import { Select } from '../../components/ui/select'
 import { PageSpinner } from '../../components/ui/spinner'
 import { EmptyState } from '../../components/ui/empty-state'
 import { Toast, useToast } from '../../components/ui/toast'
-import { RequirementFormModal } from './RequirementFormModal'
 
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -21,7 +20,7 @@ const STATUS_FILTER_OPTIONS = [
   { value: 'done', label: 'Hoàn thành' },
 ]
 
-export function RequirementsList({ projectId, group, groups = [] }) {
+export function RequirementsList({ projectId, group, groups = [], project }) {
   const navigate = useNavigate()
   const { projectId: paramProjectId } = useParams()
   const resolvedProjectId = projectId ?? Number(paramProjectId)
@@ -32,8 +31,6 @@ export function RequirementsList({ projectId, group, groups = [] }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editingReq, setEditingReq] = useState(null)
 
   const loadRequirements = useCallback(async () => {
     if (!session?.token || !resolvedProjectId) return
@@ -54,8 +51,17 @@ export function RequirementsList({ projectId, group, groups = [] }) {
 
   useEffect(() => { loadRequirements() }, [loadRequirements])
 
-  const handleAdd = () => { setEditingReq(null); setModalOpen(true) }
-  const handleEdit = (req) => { setEditingReq(req); setModalOpen(true) }
+  const handleAdd = () => {
+    navigate(`/projects/${resolvedProjectId}/requirements/new`, {
+      state: { group, project },
+    })
+  }
+
+  const handleEdit = (req) => {
+    navigate(`/projects/${resolvedProjectId}/requirements/${req.id}/edit`, {
+      state: { group, project },
+    })
+  }
 
   const handleDelete = async (req) => {
     if (!window.confirm(`Xóa yêu cầu "${req.title}"?`)) return
@@ -66,20 +72,6 @@ export function RequirementsList({ projectId, group, groups = [] }) {
     } catch (err) {
       showToast(err.message, 'error')
     }
-  }
-
-  const handleSave = async (formData) => {
-    const payload = { ...formData, project_id: resolvedProjectId }
-    let saved
-    if (editingReq) {
-      saved = await api.updateRequirement(session.token, editingReq.id, payload)
-      showToast('Đã cập nhật yêu cầu', 'success')
-    } else {
-      saved = await api.createRequirement(session.token, payload)
-      showToast('Đã thêm yêu cầu mới', 'success')
-    }
-    loadRequirements()
-    return saved
   }
 
   const handleView = (req) => {
@@ -245,15 +237,6 @@ export function RequirementsList({ projectId, group, groups = [] }) {
           </div>
         )}
       </div>
-
-      <RequirementFormModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditingReq(null) }}
-        onSave={handleSave}
-        requirement={editingReq}
-        group={group}
-        groups={groups}
-      />
 
       <Toast toast={toast} onClose={hideToast} />
     </div>
