@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DocumentTemplateController;
 use App\Http\Controllers\Api\V1\LogController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\RequirementAnalysisController;
+use App\Http\Controllers\Api\V1\RequirementController;
+use App\Http\Controllers\Api\V1\RequirementGroupController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -82,6 +86,26 @@ Route::prefix('v1')->group(function () {
             Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
                 ->defaults('permission', 'projects.delete')
                 ->middleware('permission');
+
+            // Document Templates
+            Route::get('/templates', [DocumentTemplateController::class, 'index'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
+            Route::post('/templates', [DocumentTemplateController::class, 'store'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
+            Route::get('/templates/{template}', [DocumentTemplateController::class, 'show'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
+            Route::put('/templates/{template}', [DocumentTemplateController::class, 'update'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
+            Route::delete('/templates/{template}', [DocumentTemplateController::class, 'destroy'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
+            Route::post('/templates/{template}/set-default', [DocumentTemplateController::class, 'setDefault'])
+                ->defaults('permission', 'templates.manage')
+                ->middleware('permission');
         });
     });
 
@@ -99,6 +123,66 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth.token')->group(function () {
             Route::get('/projects', [ProjectController::class, 'index'])
                 ->defaults('permission', 'projects.view')
+                ->middleware('permission');
+
+            // Feature Groups
+            Route::get('/groups', [RequirementGroupController::class, 'index'])
+                ->defaults('permission', 'groups.view')
+                ->middleware('permission');
+            Route::post('/groups', [RequirementGroupController::class, 'store'])
+                ->defaults('permission', 'groups.create')
+                ->middleware('permission');
+            Route::put('/groups/reorder', [RequirementGroupController::class, 'reorder'])
+                ->defaults('permission', 'groups.edit')
+                ->middleware('permission');
+            Route::put('/groups/{group}', [RequirementGroupController::class, 'update'])
+                ->defaults('permission', 'groups.edit')
+                ->middleware('permission');
+            Route::put('/groups/{group}/move', [RequirementGroupController::class, 'move'])
+                ->defaults('permission', 'groups.edit')
+                ->middleware('permission');
+            Route::delete('/groups/{group}', [RequirementGroupController::class, 'destroy'])
+                ->defaults('permission', 'groups.delete')
+                ->middleware('permission');
+
+            // Requirements
+            Route::get('/requirements', [RequirementController::class, 'index'])
+                ->defaults('permission', 'requirements.view')
+                ->middleware('permission');
+            Route::post('/requirements', [RequirementController::class, 'store'])
+                ->defaults('permission', 'requirements.create')
+                ->middleware('permission');
+            Route::get('/requirements/{requirement}', [RequirementController::class, 'show'])
+                ->defaults('permission', 'requirements.view')
+                ->middleware('permission');
+            Route::put('/requirements/{requirement}', [RequirementController::class, 'update'])
+                ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+            Route::delete('/requirements/{requirement}', [RequirementController::class, 'destroy'])
+                ->defaults('permission', 'requirements.delete')
+                ->middleware('permission');
+            Route::put('/requirements/{requirement}/move-group', [RequirementController::class, 'moveGroup'])
+                ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+
+            // Analyses
+            Route::get('/analyses', [RequirementAnalysisController::class, 'index'])
+                ->defaults('permission', 'requirements.view')
+                ->middleware('permission');
+            Route::post('/analyses/prefill', [RequirementAnalysisController::class, 'prefill'])
+                ->defaults('permission', 'requirements.create')
+                ->middleware('permission');
+            Route::post('/analyses', [RequirementAnalysisController::class, 'upsert'])
+                ->defaults('permission', 'requirements.create')
+                ->middleware('permission');
+            Route::get('/analyses/{analysis}', [RequirementAnalysisController::class, 'show'])
+                ->defaults('permission', 'requirements.view')
+                ->middleware('permission');
+            Route::put('/analyses/{analysis}', [RequirementAnalysisController::class, 'upsert'])
+                ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+            Route::delete('/analyses/{analysis}', [RequirementAnalysisController::class, 'destroy'])
+                ->defaults('permission', 'requirements.edit')
                 ->middleware('permission');
         });
 
