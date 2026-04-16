@@ -3,9 +3,9 @@ import { apiRequest, ApiRequestError, clearSession, getSession, setSession } fro
 
 const initialLoginForm = { email: 'admin@ba-ai.local', password: 'Admin@123', system: 'admin' }
 const initialUserForm = { id: null, name: '', email: '', password: '', role_id: null }
-const initialProjectForm = { id: null, code: '', name: '', description: '', status: 'planning', member_ids: [] }
+const initialProjectForm = { id: null, code: '', name: '', description: '', status: 'planning', member_assignments: [] }
 
-export function useAdminDashboard() {
+export function useAdminDashboard({ notify }) {
   const [token, setToken] = useState(getSession()?.token ?? '')
   const [user, setUser] = useState(getSession()?.user ?? null)
   const [roles, setRoles] = useState([])
@@ -43,7 +43,7 @@ export function useAdminDashboard() {
 
     return Object.entries(errors).reduce((accumulator, [field, value]) => {
       if (Array.isArray(value) && value.length > 0) {
-        const normalizedField = field.startsWith('member_ids.') ? 'member_ids' : field
+        const normalizedField = field.startsWith('member_assignments.') ? 'member_assignments' : field
         accumulator[normalizedField] = String(value[0])
       }
       return accumulator
@@ -65,10 +65,11 @@ export function useAdminDashboard() {
   }, [])
 
   const fetchBootstrap = useCallback(async (activeToken) => {
-    const [meData, roleData, permissionData] = await Promise.all([
-      apiRequest('/auth/me', activeToken),
-      apiRequest('/roles', activeToken),
-      apiRequest('/roles/permissions', activeToken),
+    const meData = await apiRequest('/auth/me', activeToken)
+
+    const [roleData, permissionData] = await Promise.all([
+      apiRequest('/roles', activeToken).catch(() => []),
+      apiRequest('/roles/permissions', activeToken).catch(() => []),
     ])
 
     setUser(meData)
@@ -93,18 +94,25 @@ export function useAdminDashboard() {
 
     setLoading(true)
     fetchBootstrap(token)
-      .catch(() => {
-        setError('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.')
-        clearSession()
-        setToken('')
-        setUser(null)
-        setRoles([])
-        setPermissions([])
-        setUsers([])
-        setProjects([])
+      .catch((requestError) => {
+        if (requestError instanceof ApiRequestError && requestError.status === 401) {
+          setError('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.')
+          clearSession()
+          setToken('')
+          setUser(null)
+          setRoles([])
+          setPermissions([])
+          setUsers([])
+          setProjects([])
+          return
+        }
+
+        const message = requestError.message ?? 'Không thể tải dữ liệu dashboard. Vui lòng thử lại.'
+        setError(message)
+        notify?.('error', message)
       })
       .finally(() => setLoading(false))
-  }, [token, fetchBootstrap])
+  }, [token, fetchBootstrap, notify])
 
   const login = async (event) => {
     event.preventDefault()
@@ -122,6 +130,7 @@ export function useAdminDashboard() {
       setSession(response.token, response.user)
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
       if (requestError instanceof ApiRequestError) {
         setLoginErrors(normalizeFieldErrors(requestError.errors))
       }
@@ -143,6 +152,7 @@ export function useAdminDashboard() {
     setProjects([])
     resetUserForm()
     resetProjectForm()
+    notify?.('success', 'Đăng xuất thành công.')
   }
 
   const editUser = (selectedUser) => {
@@ -180,8 +190,10 @@ export function useAdminDashboard() {
 
       await refreshUsers(token, can('users.view'))
       resetUserForm()
+      notify?.('success', userForm.id ? 'Cập nhật tài khoản thành công.' : 'Tạo tài khoản thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
       if (requestError instanceof ApiRequestError) {
         setUserFormErrors(normalizeFieldErrors(requestError.errors))
       }
@@ -198,8 +210,10 @@ export function useAdminDashboard() {
     try {
       await apiRequest(`/users/${id}`, token, { method: 'DELETE' })
       await refreshUsers(token, can('users.view'))
+      notify?.('success', 'Xóa tài khoản thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
     } finally {
       setLoading(false)
     }
@@ -212,7 +226,10 @@ export function useAdminDashboard() {
       name: selectedProject.name,
       description: selectedProject.description ?? '',
       status: selectedProject.status,
-      member_ids: selectedProject.members.map((member) => member.id),
+      member_assignments: selectedProject.members.map((member) => ({
+        user_id: member.id,
+        project_role: member.project_role ?? 'dev',
+      })),
     })
   }
 
@@ -228,7 +245,7 @@ export function useAdminDashboard() {
         name: projectForm.name,
         description: projectForm.description,
         status: projectForm.status,
-        member_ids: projectForm.member_ids,
+        member_assignments: projectForm.member_assignments,
       }
 
       if (!projectForm.id) {
@@ -239,27 +256,32 @@ export function useAdminDashboard() {
 
       await refreshProjects(token, can('projects.view'))
       resetProjectForm()
+      notify?.('success', projectForm.id ? 'Cập nhật dự án thành công.' : 'Tạo dự án thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
       if (requestError instanceof ApiRequestError) {
         setProjectFormErrors(normalizeFieldErrors(requestError.errors))
       }
+      throw requestError
     } finally {
       setLoading(false)
     }
   }
 
-  const syncProjectMembers = async (projectId, memberIds) => {
+  const syncProjectMembers = async (projectId, memberAssignments) => {
     setLoading(true)
     setError('')
     try {
       await apiRequest(`/projects/${projectId}/members`, token, {
         method: 'PUT',
-        body: { member_ids: memberIds },
+        body: { member_assignments: memberAssignments },
       })
       await refreshProjects(token, can('projects.view'))
+      notify?.('success', 'Cập nhật thành viên dự án thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
     } finally {
       setLoading(false)
     }
@@ -276,8 +298,10 @@ export function useAdminDashboard() {
       if (projectForm.id === projectId) {
         resetProjectForm()
       }
+      notify?.('success', 'Xóa dự án thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
     } finally {
       setLoading(false)
     }
@@ -293,8 +317,10 @@ export function useAdminDashboard() {
       })
       const roleData = await apiRequest('/roles', token)
       setRoles(roleData)
+      notify?.('success', 'Cập nhật quyền vai trò thành công.')
     } catch (requestError) {
       setError(requestError.message)
+      notify?.('error', requestError.message)
       throw requestError
     } finally {
       setLoading(false)

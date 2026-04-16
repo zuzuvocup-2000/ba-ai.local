@@ -88,7 +88,7 @@ export function DashboardSidebar({ user, onLogout, onChangePassword }) {
       <Card className="flex h-full flex-col overflow-hidden border-slate-800/20 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-0 text-slate-100">
         <div className="border-b border-white/10 p-5">
           <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Hệ thống</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-wide text-white">BA AI Admin</h2>
+          <h2 className="mt-2 text-xl font-semibold tracking-wide text-white">AI BA Admin</h2>
           <p className="mt-1 text-xs text-slate-300">Trung tâm quản trị</p>
         </div>
 

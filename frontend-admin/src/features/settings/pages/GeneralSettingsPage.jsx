@@ -5,7 +5,7 @@ import { Card } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
 import settingDefinitions from '../../../config/general-settings.json'
 
-export function GeneralSettingsPage({ token, error, fetchSettings, updateSettings }) {
+export function GeneralSettingsPage({ token, error, fetchSettings, updateSettings, onNotify }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -66,8 +66,10 @@ export function GeneralSettingsPage({ token, error, fetchSettings, updateSetting
       }))
       await updateSettings(payload, token)
       setMessage('Cập nhật cấu hình thành công.')
+      onNotify?.('success', 'Cập nhật cấu hình thành công.')
     } catch (requestError) {
       setMessage(requestError.message)
+      onNotify?.('error', requestError.message)
     } finally {
       setLoading(false)
     }

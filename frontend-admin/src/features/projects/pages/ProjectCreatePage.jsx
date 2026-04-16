@@ -1,10 +1,18 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ProjectFormCard } from '../components/ProjectFormCard'
 
-export function ProjectCreatePage({ loading, can, projectForm, setProjectForm, onSubmitProject, onResetProjectForm, fieldErrors, error }) {
+export function ProjectCreatePage({ loading, can, users, projectForm, setProjectForm, onSubmitProject, onResetProjectForm, fieldErrors, error }) {
+  const navigate = useNavigate()
+
   useEffect(() => {
     onResetProjectForm()
   }, [onResetProjectForm])
+
+  const handleSubmit = async (event) => {
+    await onSubmitProject(event)
+    navigate('/admin/projects')
+  }
 
   return (
     <>
@@ -12,9 +20,10 @@ export function ProjectCreatePage({ loading, can, projectForm, setProjectForm, o
       <ProjectFormCard
         loading={loading}
         can={can}
+        users={users}
         projectForm={projectForm}
         setProjectForm={setProjectForm}
-        onSubmitProject={onSubmitProject}
+        onSubmitProject={handleSubmit}
         onResetProjectForm={onResetProjectForm}
         fieldErrors={fieldErrors}
       />

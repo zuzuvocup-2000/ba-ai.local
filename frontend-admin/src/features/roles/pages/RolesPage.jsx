@@ -14,8 +14,8 @@ export function RolesPage({ roles, permissions, can, loading, onUpdatePermission
   const editableRoles = useMemo(
     () =>
       rbacConfig.roles.map((item) => {
-        if (item.slug === 'super-admin' && roleMap.has('admin') && !roleMap.has('super-admin')) {
-          return { ...item, ...roleMap.get('admin') }
+        if (item.slug === 'system-admin' && roleMap.has('super-admin') && !roleMap.has('system-admin')) {
+          return { ...item, ...roleMap.get('super-admin') }
         }
         return { ...item, ...(roleMap.get(item.slug) ?? {}) }
       }).filter((item) => item.id),

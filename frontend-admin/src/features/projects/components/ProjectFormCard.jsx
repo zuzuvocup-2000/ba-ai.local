@@ -14,6 +14,7 @@ const statusOptions = [
 export function ProjectFormCard({
   loading,
   can,
+  users,
   projectForm,
   setProjectForm,
   onSubmitProject,
@@ -21,6 +22,18 @@ export function ProjectFormCard({
   fieldErrors,
 }) {
   const selectedStatus = statusOptions.find((option) => option.value === projectForm.status) ?? statusOptions[0]
+  const projectRoleOptions = [
+    { value: 'project-manager', label: 'Project Manager' },
+    { value: 'ba', label: 'BA' },
+    { value: 'dev', label: 'Dev' },
+  ]
+
+  const addAssignment = () => {
+    setProjectForm({
+      ...projectForm,
+      member_assignments: [...projectForm.member_assignments, { user_id: '', project_role: 'dev' }],
+    })
+  }
 
   return (
     <Card className="p-6">
@@ -65,6 +78,55 @@ export function ProjectFormCard({
             onChange={(event) => setProjectForm({ ...projectForm, description: event.target.value })}
           />
           {fieldErrors?.description && <p className="text-xs text-rose-600">{fieldErrors.description}</p>}
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-600">Phân cấp thành viên</label>
+          <div className="space-y-2">
+            {projectForm.member_assignments.map((assignment, index) => (
+              <div key={`${index}-${assignment.user_id || 'new'}`} className="grid gap-2 md:grid-cols-[1fr_220px_auto]">
+                <select
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  value={assignment.user_id}
+                  onChange={(event) => {
+                    const next = [...projectForm.member_assignments]
+                    next[index] = { ...next[index], user_id: Number(event.target.value) }
+                    setProjectForm({ ...projectForm, member_assignments: next })
+                  }}
+                >
+                  <option value="">Chọn thành viên</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.email})
+                    </option>
+                  ))}
+                </select>
+                <Select2
+                  options={projectRoleOptions}
+                  value={projectRoleOptions.find((role) => role.value === assignment.project_role) ?? projectRoleOptions[2]}
+                  onChange={(selected) => {
+                    const next = [...projectForm.member_assignments]
+                    next[index] = { ...next[index], project_role: selected?.value ?? 'dev' }
+                    setProjectForm({ ...projectForm, member_assignments: next })
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() =>
+                    setProjectForm({
+                      ...projectForm,
+                      member_assignments: projectForm.member_assignments.filter((_, assignmentIndex) => assignmentIndex !== index),
+                    })}
+                >
+                  Xóa
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button type="button" variant="secondary" onClick={addAssignment}>
+            Thêm thành viên
+          </Button>
+          {fieldErrors?.member_assignments && <p className="text-xs text-rose-600">{fieldErrors.member_assignments}</p>}
         </div>
 
         <div className="flex gap-2 border-t border-slate-100 pt-4">

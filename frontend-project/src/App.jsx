@@ -163,7 +163,7 @@ export default function App() {
     <section className="workspace">
       <header className="workspace-header">
         <div>
-          <strong>BA AI - Hệ thống dự án</strong>
+          <strong>AI Business Analyst Assistant - Hệ thống dự án</strong>
           <div className="desc">Xin chào, {session.user?.name}</div>
         </div>
         <button className="button" onClick={onLogout} style={{ width: 'auto' }}>

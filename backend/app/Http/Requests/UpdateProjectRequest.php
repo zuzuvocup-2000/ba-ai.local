@@ -20,8 +20,9 @@ class UpdateProjectRequest extends ApiFormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'status' => ['required', 'string', Rule::in(['planning', 'active', 'on-hold', 'done'])],
-            'member_ids' => ['sometimes', 'array'],
-            'member_ids.*' => ['integer', Rule::exists('users', 'id')],
+            'member_assignments' => ['sometimes', 'array'],
+            'member_assignments.*.user_id' => ['required', 'integer', Rule::exists('users', 'id')],
+            'member_assignments.*.project_role' => ['required', 'string', Rule::in(['project-manager', 'ba', 'dev'])],
         ];
     }
 
@@ -33,8 +34,9 @@ class UpdateProjectRequest extends ApiFormRequest
             'name.required' => 'Tên dự án là bắt buộc.',
             'status.required' => 'Trạng thái dự án là bắt buộc.',
             'status.in' => 'Trạng thái dự án không hợp lệ.',
-            'member_ids.array' => 'Danh sách thành viên phải là mảng.',
-            'member_ids.*.exists' => 'Có thành viên không tồn tại trong hệ thống.',
+            'member_assignments.array' => 'Danh sách phân quyền thành viên phải là mảng.',
+            'member_assignments.*.user_id.exists' => 'Có thành viên không tồn tại trong hệ thống.',
+            'member_assignments.*.project_role.in' => 'Vai trò dự án chỉ gồm Project Manager, BA hoặc Dev.',
         ];
     }
 }

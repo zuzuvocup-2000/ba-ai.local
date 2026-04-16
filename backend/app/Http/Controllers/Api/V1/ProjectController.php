@@ -50,13 +50,13 @@ class ProjectController extends Controller
 
     public function syncMembers(SyncProjectMembersRequest $request, Project $project)
     {
-        $updatedProject = $this->projectService->updateMembers($project, $request->validated()['member_ids']);
+        $updatedProject = $this->projectService->updateMembers($project, $request->validated()['member_assignments']);
 
         MongoLogHelper::action([
             'action' => 'projects.members.sync',
             'actor_id' => request()->user()?->id,
             'project_id' => $updatedProject->id,
-            'member_count' => count($request->validated()['member_ids']),
+            'member_count' => count($request->validated()['member_assignments']),
         ]);
 
         return ApiResponse::success($this->projectService->toArray($updatedProject), 'Cập nhật thành viên dự án thành công.');

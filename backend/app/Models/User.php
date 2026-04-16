@@ -39,7 +39,8 @@ class User extends Authenticatable
 
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Project::class, 'project_user');
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withPivot('project_role');
     }
 
     public function apiTokens(): HasMany
@@ -58,7 +59,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->roles->contains(fn (Role $role) => in_array($role->slug, ['admin', 'super-admin'], true))) {
+        if ($this->roles->contains(fn (Role $role) => in_array($role->slug, ['system-admin', 'admin', 'super-admin'], true))) {
             return true;
         }
 
@@ -76,11 +77,11 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->hasRole('admin') || $this->hasRole('super-admin') || $this->hasRole('project-manager') || $this->hasRole('manager')) {
+        if ($this->hasRole('system-admin') || $this->hasRole('admin') || $this->hasRole('super-admin')) {
             return true;
         }
 
-        if ($system === 'project' && ($this->hasRole('ba') || $this->hasRole('dev'))) {
+        if ($system === 'project' && ($this->hasRole('employee') || $this->hasRole('project-manager') || $this->hasRole('manager') || $this->hasRole('ba') || $this->hasRole('dev'))) {
             return true;
         }
 

@@ -29,7 +29,7 @@ class ProjectService
             'status' => $payload['status'] ?? 'planning',
         ]);
 
-        $project->members()->sync($payload['member_ids'] ?? []);
+        $project->members()->sync($this->toSyncPayload($payload['member_assignments'] ?? []));
         $project->load('members.roles');
 
         return $project;
@@ -44,8 +44,8 @@ class ProjectService
             'status' => $payload['status'],
         ]);
 
-        if (array_key_exists('member_ids', $payload)) {
-            $project->members()->sync($payload['member_ids']);
+        if (array_key_exists('member_assignments', $payload)) {
+            $project->members()->sync($this->toSyncPayload($payload['member_assignments']));
         }
 
         $project->load('members.roles');
@@ -53,9 +53,9 @@ class ProjectService
         return $project;
     }
 
-    public function updateMembers(Project $project, array $memberIds): Project
+    public function updateMembers(Project $project, array $memberAssignments): Project
     {
-        $project->members()->sync($memberIds);
+        $project->members()->sync($this->toSyncPayload($memberAssignments));
         $project->load('members.roles');
 
         return $project;
@@ -80,11 +80,24 @@ class ProjectService
                     'name' => $member->name,
                     'email' => $member->email,
                     'role' => $member->roles->first()?->name,
+                    'project_role' => $member->pivot?->project_role ?? 'dev',
                 ])
                 ->values()
                 ->all(),
             'created_at' => $project->created_at,
         ];
+    }
+
+    private function toSyncPayload(array $memberAssignments): array
+    {
+        $syncPayload = [];
+        foreach ($memberAssignments as $assignment) {
+            $syncPayload[(int) $assignment['user_id']] = [
+                'project_role' => $assignment['project_role'],
+            ];
+        }
+
+        return $syncPayload;
     }
 }
 

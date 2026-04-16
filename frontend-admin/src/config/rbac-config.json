@@ -1,9 +1,7 @@
 {
   "roles": [
-    { "slug": "super-admin", "name": "Super Admin" },
-    { "slug": "project-manager", "name": "Project Manager" },
-    { "slug": "ba", "name": "BA" },
-    { "slug": "dev", "name": "Dev" }
+    { "slug": "system-admin", "name": "System Admin" },
+    { "slug": "employee", "name": "Employee" }
   ],
   "permissions": [
     { "slug": "users.view", "name": "Xem tài khoản" },

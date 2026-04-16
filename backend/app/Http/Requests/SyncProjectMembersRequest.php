@@ -14,17 +14,19 @@ class SyncProjectMembersRequest extends ApiFormRequest
     public function rules(): array
     {
         return [
-            'member_ids' => ['required', 'array'],
-            'member_ids.*' => ['integer', Rule::exists('users', 'id')],
+            'member_assignments' => ['required', 'array'],
+            'member_assignments.*.user_id' => ['required', 'integer', Rule::exists('users', 'id')],
+            'member_assignments.*.project_role' => ['required', 'string', Rule::in(['project-manager', 'ba', 'dev'])],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'member_ids.required' => 'Danh sách thành viên là bắt buộc.',
-            'member_ids.array' => 'Danh sách thành viên phải là mảng.',
-            'member_ids.*.exists' => 'Có thành viên không tồn tại trong hệ thống.',
+            'member_assignments.required' => 'Danh sách phân quyền thành viên là bắt buộc.',
+            'member_assignments.array' => 'Danh sách phân quyền thành viên phải là mảng.',
+            'member_assignments.*.user_id.exists' => 'Có thành viên không tồn tại trong hệ thống.',
+            'member_assignments.*.project_role.in' => 'Vai trò dự án chỉ gồm Project Manager, BA hoặc Dev.',
         ];
     }
 }

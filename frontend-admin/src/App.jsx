@@ -1,4 +1,5 @@
 import { LoginPage } from './features/auth/LoginPage'
+import { useCallback, useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { apiRequest } from './api'
 import { AdminLayout } from './features/dashboard/layout/AdminLayout'
@@ -11,9 +12,21 @@ import { useAdminDashboard } from './hooks/useAdminDashboard'
 import { ProjectCreatePage } from './features/projects/pages/ProjectCreatePage'
 import { ProjectEditPage } from './features/projects/pages/ProjectEditPage'
 import { ProjectListPage } from './features/projects/pages/ProjectListPage'
+import { Toast } from './components/ui/toast'
 
 function App() {
-  const { auth, data, loginState, userForm, projectForm, roleForm } = useAdminDashboard()
+  const [toast, setToast] = useState(null)
+  const notify = useCallback((type, message) => {
+    setToast({ type, message })
+  }, [])
+
+  useEffect(() => {
+    if (!toast) return
+    const timer = setTimeout(() => setToast(null), 2600)
+    return () => clearTimeout(timer)
+  }, [toast])
+
+  const { auth, data, loginState, userForm, projectForm, roleForm } = useAdminDashboard({ notify })
 
   const fetchSettings = async (token) => {
     return apiRequest('/settings', token)
@@ -36,10 +49,17 @@ function App() {
   }
 
   const changePassword = async (payload, token) => {
-    return apiRequest('/auth/change-password', token, {
-      method: 'PUT',
-      body: payload,
-    })
+    try {
+      const result = await apiRequest('/auth/change-password', token, {
+        method: 'PUT',
+        body: payload,
+      })
+      notify('success', 'Đổi mật khẩu thành công.')
+      return result
+    } catch (error) {
+      notify('error', error.message)
+      throw error
+    }
   }
 
   if (!auth.token || !auth.user) {
@@ -56,7 +76,8 @@ function App() {
   }
 
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/" element={<Navigate to="/admin/overview" replace />} />
       <Route
         path="/admin"
@@ -65,6 +86,7 @@ function App() {
             user={auth.user}
             onLogout={auth.logout}
             onChangePassword={(payload) => changePassword(payload, auth.token)}
+            loading={data.loading}
           />
         }
       >
@@ -118,6 +140,7 @@ function App() {
             <ProjectCreatePage
               loading={data.loading}
               can={data.can}
+              users={data.users}
               projectForm={projectForm.projectForm}
               setProjectForm={projectForm.setProjectForm}
               onSubmitProject={projectForm.submitProject}
@@ -133,6 +156,7 @@ function App() {
             <ProjectEditPage
               loading={data.loading}
               can={data.can}
+              users={data.users}
               projects={data.projects}
               projectForm={projectForm.projectForm}
               setProjectForm={projectForm.setProjectForm}
@@ -165,6 +189,7 @@ function App() {
               error={data.error}
               fetchSettings={fetchSettings}
               updateSettings={updateSettings}
+              onNotify={notify}
             />
           }
         />
@@ -213,8 +238,10 @@ function App() {
           }
         />
       </Route>
-      <Route path="*" element={<Navigate to="/admin/overview" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/admin/overview" replace />} />
+      </Routes>
+      <Toast toast={toast} onClose={() => setToast(null)} />
+    </>
   )
 }
 

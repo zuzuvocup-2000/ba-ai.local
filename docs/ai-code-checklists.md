@@ -82,6 +82,11 @@ Tiêu chuẩn bắt buộc:
 - Keep interactions accessible (labels, focus states, keyboard-friendly controls).
 - Khi API trả lỗi validation, phải hiển thị lỗi đúng field đang sai (ví dụ: email, mật khẩu, role...) ngay dưới input tương ứng.
 - Không chỉ hiển thị lỗi tổng quát; luôn ưu tiên lỗi theo trường trước.
+- Mọi hành động chỉnh sửa dữ liệu (tạo, cập nhật, xóa, đổi trạng thái, phân quyền, đồng bộ member...) đều phải hiển thị toast thông báo kết quả:
+  - Thành công: toast thành công rõ ràng.
+  - Thất bại: toast thất bại kèm thông điệp dễ hiểu.
+- Sau khi tạo mới hoặc chỉnh sửa thành công, điều hướng người dùng về màn danh sách của module tương ứng.
+- Khi vào trang cần tải dữ liệu ban đầu, phải có trạng thái loading toàn trang (overlay mờ/skeleton) để người dùng biết hệ thống đang xử lý.
 
 3) State and API integration
 - Centralize API calls in a dedicated module.

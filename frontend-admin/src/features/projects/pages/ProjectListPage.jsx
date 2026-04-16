@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import { Card } from '../../../components/ui/card'
@@ -14,20 +14,22 @@ const statusMap = {
 export function ProjectListPage({ projects, users, loading, can, onDeleteProject, onSyncProjectMembers, error }) {
   const [deleteProjectId, setDeleteProjectId] = useState(null)
   const [memberProjectId, setMemberProjectId] = useState(null)
-  const [memberIds, setMemberIds] = useState([])
-
-  const memberOptions = useMemo(
-    () => users.map((user) => ({ value: user.id, label: `${user.name} (${user.email})` })),
-    [users]
-  )
+  const [memberAssignments, setMemberAssignments] = useState([])
 
   const openMemberModal = (project) => {
     setMemberProjectId(project.id)
-    setMemberIds(project.members.map((member) => member.id))
+    setMemberAssignments(project.members.map((member) => ({
+      user_id: member.id,
+      project_role: member.project_role ?? 'dev',
+    })))
   }
 
   const activeProject = projects.find((project) => project.id === memberProjectId) ?? null
-  const selectedMembers = memberOptions.filter((option) => memberIds.includes(option.value))
+  const projectRoleOptions = [
+    { value: 'project-manager', label: 'Project Manager' },
+    { value: 'ba', label: 'BA' },
+    { value: 'dev', label: 'Dev' },
+  ]
 
   return (
     <>
@@ -63,7 +65,9 @@ export function ProjectListPage({ projects, users, loading, can, onDeleteProject
                   </td>
                   <td className="px-3 py-3 text-slate-600">{statusMap[project.status] ?? project.status}</td>
                   <td className="px-3 py-3 text-xs text-slate-500">
-                    {project.members.length ? project.members.map((member) => member.name).join(', ') : 'Chưa có thành viên'}
+                    {project.members.length
+                      ? project.members.map((member) => `${member.name} (${member.project_role ?? 'dev'})`).join(', ')
+                      : 'Chưa có thành viên'}
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-2">
@@ -116,20 +120,59 @@ export function ProjectListPage({ projects, users, loading, can, onDeleteProject
             <h4 className="text-base font-semibold text-slate-900">Quản lý thành viên dự án</h4>
             <p className="mt-1 text-sm text-slate-500">{activeProject.name}</p>
             <div className="mt-4">
-              <Select2
-                isMulti
-                options={memberOptions}
-                value={selectedMembers}
-                onChange={(selectedOptions) => setMemberIds((selectedOptions ?? []).map((option) => Number(option.value)))}
-                placeholder="Chọn thành viên..."
-              />
+              <div className="space-y-2">
+                {memberAssignments.map((assignment, index) => (
+                  <div key={`${index}-${assignment.user_id || 'new'}`} className="grid gap-2 md:grid-cols-[1fr_220px_auto]">
+                    <select
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      value={assignment.user_id}
+                      onChange={(event) => {
+                        const next = [...memberAssignments]
+                        next[index] = { ...next[index], user_id: Number(event.target.value) }
+                        setMemberAssignments(next)
+                      }}
+                    >
+                      <option value="">Chọn thành viên</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} ({user.email})
+                        </option>
+                      ))}
+                    </select>
+                    <Select2
+                      options={projectRoleOptions}
+                      value={projectRoleOptions.find((role) => role.value === assignment.project_role) ?? projectRoleOptions[2]}
+                      onChange={(selected) => {
+                        const next = [...memberAssignments]
+                        next[index] = { ...next[index], project_role: selected?.value ?? 'dev' }
+                        setMemberAssignments(next)
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setMemberAssignments(memberAssignments.filter((_, memberIndex) => memberIndex !== index))}
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                className="mt-3"
+                onClick={() => setMemberAssignments([...memberAssignments, { user_id: '', project_role: 'dev' }])}
+              >
+                Thêm thành viên
+              </Button>
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <Button variant="secondary" onClick={() => setMemberProjectId(null)}>Đóng</Button>
               <Button
                 disabled={loading || !can('projects.edit')}
                 onClick={async () => {
-                  await onSyncProjectMembers(memberProjectId, memberIds)
+                  await onSyncProjectMembers(memberProjectId, memberAssignments)
                   setMemberProjectId(null)
                 }}
               >

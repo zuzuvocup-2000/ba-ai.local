@@ -7,7 +7,7 @@ export function LoginPage({ loginForm, setLoginForm, onSubmit, error, fieldError
     <main className="grid min-h-screen place-items-center px-4">
       <Card className="w-full max-w-md p-8">
         <div className="mb-6 space-y-2 text-center">
-          <p className="text-sm text-slate-500">BA AI Platform</p>
+          <p className="text-sm text-slate-500">AI Business Analyst Assistant</p>
           <h1 className="text-2xl font-semibold text-slate-900">Trang quản trị</h1>
           <p className="text-sm text-slate-500">Đăng nhập để quản trị người dùng và phân quyền.</p>
         </div>
