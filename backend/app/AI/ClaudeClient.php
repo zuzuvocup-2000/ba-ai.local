@@ -5,7 +5,7 @@ namespace App\AI;
 use App\Repositories\SettingRepository;
 use Illuminate\Support\Facades\Http;
 
-class ClaudeClient
+class ClaudeClient implements AiClientInterface
 {
     private const API_URL = 'https://api.anthropic.com/v1/messages';
     private const ANTHROPIC_VERSION = '2023-06-01';

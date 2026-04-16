@@ -2,17 +2,15 @@
 
 namespace App\Services;
 
-use App\AI\ClaudeClient;
+use App\AI\AiClientFactory;
 use App\Models\Document;
 use App\Models\DocumentChangeProposal;
-use App\Repositories\SettingRepository;
 
 class AiChatService
 {
     public function __construct(
-        private readonly ClaudeClient $claudeClient,
+        private readonly AiClientFactory $aiClientFactory,
         private readonly MongoLogService $mongoLogService,
-        private readonly SettingRepository $settingRepository,
     ) {}
 
     /**
@@ -50,7 +48,7 @@ SYSTEM;
             [['role' => 'user', 'content' => $userMessage]]
         );
 
-        $result = $this->claudeClient->generateMultiTurn($systemPrompt, $messages);
+        $result = $this->aiClientFactory->make()->generateMultiTurn($systemPrompt, $messages);
         $reply  = $result['content'];
 
         // Parse proposal marker

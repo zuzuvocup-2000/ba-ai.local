@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\AI\ClaudeClient;
+use App\AI\AiClientFactory;
 use App\AI\PromptBuilderInterface;
 use App\AI\Prompts\BrdPromptBuilder;
 use App\AI\Prompts\FlowDiagramPromptBuilder;
@@ -20,7 +20,7 @@ use Throwable;
 class AiGenerationService
 {
     public function __construct(
-        private readonly ClaudeClient $claudeClient,
+        private readonly AiClientFactory $aiClientFactory,
         private readonly MongoLogService $mongoLogService,
         private readonly DocumentVersionService $versionService,
     ) {}
@@ -46,7 +46,7 @@ class AiGenerationService
             $userPrompt   = $builder->userPrompt($analysis, $requirement);
 
             // 2. Call Claude
-            $result = $this->claudeClient->generate($systemPrompt, $userPrompt);
+            $result = $this->aiClientFactory->make()->generate($systemPrompt, $userPrompt);
 
             // 3. Log to MongoDB
             $mongoId = uniqid('ai_', true);
@@ -157,7 +157,7 @@ PROMPT;
         ]);
 
         try {
-            $result = $this->claudeClient->generate($systemPrompt, $userPrompt);
+            $result = $this->aiClientFactory->make()->generate($systemPrompt, $userPrompt);
 
             $this->mongoLogService->write('ai_prefill', [
                 'requirement_id' => $requirement->id,
