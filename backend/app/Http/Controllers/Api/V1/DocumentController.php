@@ -10,11 +10,13 @@ use App\Http\Requests\GenerateDocumentRequest;
 use App\Http\Requests\ListDocumentsRequest;
 use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
+use App\Models\Project;
 use App\Models\Requirement;
 use App\Models\RequirementAnalysis;
 use App\Models\RequirementGroup;
 use App\Services\AiGenerationService;
 use App\Services\DocumentService;
+use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
@@ -102,6 +104,60 @@ class DocumentController extends Controller
         $document->load(['generationLog']);
 
         return ApiResponse::success($this->documentService->toArray($document), 'Sinh tài liệu thành công.', 201);
+    }
+
+    public function generateAll(Request $request, Requirement $requirement)
+    {
+        // force=true → gen lại kể cả doc đã có; false (default) → chỉ gen doc chưa có
+        $force = filter_var($request->input('force', false), FILTER_VALIDATE_BOOLEAN);
+
+        $result = $this->aiGenerationService->generateAllDirect($requirement, auth()->id(), $force);
+
+        MongoLogHelper::action([
+            'action'         => 'documents.generate_all',
+            'actor_id'       => auth()->id(),
+            'requirement_id' => $requirement->id,
+            'generated'      => $result['generated'],
+            'skipped'        => $result['skipped'],
+            'failed'         => $result['failed'],
+            'force'          => $force,
+        ]);
+
+        $documents = $this->documentService->listByRequirement($requirement->id);
+
+        $msg = $force
+            ? "Sinh lại hoàn tất: {$result['generated']}/{$result['total']} thành công."
+            : "Sinh tài liệu hoàn tất: {$result['generated']} mới, {$result['skipped']} đã có (bỏ qua).";
+
+        return ApiResponse::success([
+            'generated'      => $result['generated'],
+            'skipped'        => $result['skipped'],
+            'skipped_types'  => $result['skipped_types'],
+            'failed'         => $result['failed'],
+            'total'          => $result['total'],
+            'errors'         => $result['errors'],
+            'documents'      => $documents,
+        ], $msg, 201);
+    }
+
+    public function generateCommonDoc(Project $project)
+    {
+        try {
+            $document = $this->aiGenerationService->generateCommonDoc($project, auth()->id());
+        } catch (\RuntimeException $e) {
+            return ApiResponse::error($e->getMessage(), 502);
+        }
+
+        MongoLogHelper::action([
+            'action'      => 'documents.generate_common',
+            'actor_id'    => auth()->id(),
+            'project_id'  => $project->id,
+            'document_id' => $document->id,
+        ]);
+
+        $document->load(['generationLog']);
+
+        return ApiResponse::success($this->documentService->toArray($document), 'Sinh tài liệu Common thành công.', 201);
     }
 
     public function bulkGenerate(BulkGenerateRequest $request, RequirementGroup $group)

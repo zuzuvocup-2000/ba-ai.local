@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['requirement_id', 'template_id', 'type', 'title', 'content', 'generation_log_id', 'status', 'current_version', 'approved_by', 'approved_at', 'created_by', 'updated_by'])]
+#[Fillable(['project_id', 'requirement_id', 'template_id', 'type', 'title', 'content', 'generation_log_id', 'status', 'current_version', 'approved_by', 'approved_at', 'created_by', 'updated_by'])]
 class Document extends Model
 {
     protected function casts(): array
@@ -17,6 +17,11 @@ class Document extends Model
             'current_version' => 'integer',
             'approved_at'     => 'datetime',
         ];
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function requirement(): BelongsTo
@@ -52,5 +57,10 @@ class Document extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function lineComments(): HasMany
+    {
+        return $this->hasMany(DocumentLineComment::class);
     }
 }

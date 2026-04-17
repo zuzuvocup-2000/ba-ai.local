@@ -10,6 +10,7 @@ use App\Http\Requests\SyncProjectMembersRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use App\Services\ProjectService;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -20,6 +21,38 @@ class ProjectController extends Controller
     public function index()
     {
         return ApiResponse::success($this->projectService->list(), 'Lấy danh sách dự án thành công.');
+    }
+
+    public function show(Project $project)
+    {
+        $project->loadMissing('members.roles');
+
+        return ApiResponse::success($this->projectService->toArray($project), 'Lấy thông tin dự án thành công.');
+    }
+
+    public function updateCommonInfo(Request $request, Project $project)
+    {
+        $payload = $request->validate([
+            'roles'                    => 'nullable|array',
+            'roles.*.name'             => 'required|string|max:100',
+            'roles.*.description'      => 'nullable|string|max:500',
+            'common_info'              => 'nullable|array',
+            'common_info.tech_stack'   => 'nullable|string',
+            'common_info.database'     => 'nullable|string',
+            'common_info.naming'       => 'nullable|string',
+            'common_info.common_rules' => 'nullable|string',
+            'common_info.notes'        => 'nullable|string',
+        ]);
+
+        $updated = $this->projectService->updateCommonInfo($project, $payload);
+
+        MongoLogHelper::action([
+            'action'     => 'projects.common_info.update',
+            'actor_id'   => request()->user()?->id,
+            'project_id' => $project->id,
+        ]);
+
+        return ApiResponse::success($this->projectService->toArray($updated), 'Cập nhật thông tin chung dự án thành công.');
     }
 
     public function store(StoreProjectRequest $request)

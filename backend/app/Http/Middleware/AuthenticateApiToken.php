@@ -6,6 +6,7 @@ use App\Models\ApiToken;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticateApiToken
@@ -37,6 +38,9 @@ class AuthenticateApiToken
         $apiToken->forceFill(['last_used_at' => Carbon::now()])->save();
 
         $request->setUserResolver(fn () => $apiToken->user);
+
+        // Set vào Auth guard để auth()->user() và auth()->id() hoạt động đúng
+        Auth::setUser($apiToken->user);
 
         return $next($request);
     }

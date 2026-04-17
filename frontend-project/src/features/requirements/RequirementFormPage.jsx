@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft, Plus, Trash2, Paperclip, X, FileText,
-  Wand2, Save, AlertCircle, Monitor, Info, CheckCircle2,
+  Wand2, Save, AlertCircle, Monitor, Info, CheckCircle2, Zap,
 } from 'lucide-react'
 import api, { getSession } from '../../api'
 import { AppLayout } from '../../layout/AppLayout'
@@ -109,6 +109,7 @@ export function RequirementFormPage() {
   const [removedIds, setRemovedIds] = useState([])
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const [savingAndGen, setSavingAndGen] = useState(false)
   const [loading, setLoading] = useState(isEdit)
   const [loadError, setLoadError] = useState('')
   const [dragging, setDragging] = useState(false)
@@ -181,49 +182,56 @@ export function RequirementFormPage() {
     return errs
   }
 
-  // ── Submit ──
-  const handleSubmit = async (e) => {
-    e?.preventDefault()
+  // ── Core save logic (returns reqId) ──
+  const doSave = async () => {
     const errs = validate()
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       document.querySelector('[data-error]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      return
+      return null
     }
 
-    setSaving(true)
     setErrors({})
+    const tagsArray = form.tags
+      ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
+      : []
+    const screensPayload = screens.map(({ name, description, sample_data }) => ({
+      name: name.trim(),
+      description: description ?? '',
+      sample_data: sample_data ?? '',
+    }))
+    const payload = {
+      ...form,
+      tags: tagsArray,
+      screens: screensPayload,
+      project_id: Number(projectId),
+      group_id: stateGroup?.id ?? null,
+    }
+
+    let saved
+    if (isEdit) {
+      saved = await api.updateRequirement(session.token, requirementId, payload)
+    } else {
+      saved = await api.createRequirement(session.token, payload)
+    }
+
+    const reqId = saved?.id ?? requirementId
+    if (reqId) {
+      await Promise.allSettled(removedIds.map((id) => api.deleteAttachment(session.token, reqId, id)))
+      await Promise.allSettled(pendingFiles.map(({ file }) => api.uploadAttachment(session.token, reqId, file)))
+    }
+    return reqId
+  }
+
+  // ── Submit (chỉ lưu) ──
+  const handleSubmit = async (e) => {
+    e?.preventDefault()
+    setSaving(true)
     try {
-      const tagsArray = form.tags
-        ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
-        : []
-      const screensPayload = screens.map(({ name, description, sample_data }) => ({
-        name: name.trim(),
-        description: description ?? '',
-        sample_data: sample_data ?? '',
-      }))
-      const payload = {
-        ...form,
-        tags: tagsArray,
-        screens: screensPayload,
-        project_id: Number(projectId),
-        group_id: stateGroup?.id ?? null,
-      }
-
-      let saved
-      if (isEdit) {
-        saved = await api.updateRequirement(session.token, requirementId, payload)
-      } else {
-        saved = await api.createRequirement(session.token, payload)
-      }
-
-      const reqId = saved?.id ?? requirementId
+      const reqId = await doSave()
       if (reqId) {
-        await Promise.allSettled(removedIds.map((id) => api.deleteAttachment(session.token, reqId, id)))
-        await Promise.allSettled(pendingFiles.map(({ file }) => api.uploadAttachment(session.token, reqId, file)))
+        navigate(`/projects/${projectId}/requirements/${reqId}`, { replace: true })
       }
-
-      navigate(`/projects/${projectId}/requirements/${reqId}`, { replace: true })
     } catch (err) {
       if (err.errors) {
         const normalized = Object.entries(err.errors).reduce((acc, [k, v]) => {
@@ -234,7 +242,32 @@ export function RequirementFormPage() {
       } else {
         setErrors({ _general: err.message })
       }
+    } finally {
       setSaving(false)
+    }
+  }
+
+  // ── Submit + Sinh tất cả tài liệu AI ──
+  const handleSaveAndGenerate = async () => {
+    setSavingAndGen(true)
+    setErrors({})
+    try {
+      const reqId = await doSave()
+      if (!reqId) return
+      // Trigger generate-all (fire and forget navigation — detail page shows progress)
+      navigate(`/projects/${projectId}/requirements/${reqId}?generate=1`, { replace: true })
+    } catch (err) {
+      if (err.errors) {
+        const normalized = Object.entries(err.errors).reduce((acc, [k, v]) => {
+          acc[k] = Array.isArray(v) ? v[0] : v
+          return acc
+        }, {})
+        setErrors(normalized)
+      } else {
+        setErrors({ _general: err.message })
+      }
+    } finally {
+      setSavingAndGen(false)
     }
   }
 
@@ -708,44 +741,66 @@ export function RequirementFormPage() {
 
             {/* Action card */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+              {/* Primary: Save & Generate All */}
               <button
                 type="button"
-                onClick={handleSubmit}
-                disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={handleSaveAndGenerate}
+                disabled={saving || savingAndGen}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 hover:from-emerald-600 hover:to-teal-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {saving ? (
+                {savingAndGen ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                     Đang lưu...
                   </>
                 ) : (
                   <>
-                    <Save size={15} />
-                    {isEdit ? 'Lưu thay đổi' : 'Tạo yêu cầu'}
+                    <Zap size={15} />
+                    {isEdit ? 'Lưu & Sinh lại tài liệu AI' : 'Lưu & Sinh tài liệu AI'}
                   </>
                 )}
               </button>
+
+              {/* Secondary: Save only */}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={saving || savingAndGen}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Save size={14} />
+                    {isEdit ? 'Chỉ lưu thay đổi' : 'Chỉ lưu (không sinh tài liệu)'}
+                  </>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                disabled={saving || savingAndGen}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 Hủy bỏ
               </button>
             </div>
 
             {/* Tips card */}
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-              <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-blue-700">
-                <Info size={13} /> Gợi ý
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <Zap size={13} /> Quy trình mới
               </div>
-              <ul className="space-y-1.5 text-xs text-blue-600 leading-relaxed">
-                <li>• Mô tả rõ ràng giúp AI tạo tài liệu chính xác hơn</li>
-                <li>• Thêm màn hình để AI phân tích flow đầy đủ</li>
-                <li>• Đính kèm wireframe hoặc mockup nếu có</li>
-                <li>• Tags giúp tìm kiếm và phân loại dễ hơn</li>
+              <ul className="space-y-1.5 text-xs text-emerald-700 leading-relaxed">
+                <li>1. Nhập mô tả + màn hình đầy đủ</li>
+                <li>2. Nhấn <strong>Lưu & Sinh tài liệu AI</strong></li>
+                <li>3. AI tự động gen BRD, Flow, SQL, Rules, Test Cases</li>
+                <li>4. BA / Dev vào rà soát và chỉnh sửa</li>
               </ul>
             </div>
           </div>

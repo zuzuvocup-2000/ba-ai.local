@@ -14,7 +14,17 @@
       "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build\")",
       "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-project && npm run build 2>&1\")",
       "Bash(cmd //c \"cd /d E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\frontend-admin && npm run build 2>&1\")",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(xargs grep *)",
+      "Bash(where php *)",
+      "Read(//c/OpenServer/modules/**)",
+      "Bash(cmd.exe /c \"where php\")",
+      "Bash(cmd.exe /c \"dir E:\\\\OpenServer\\\\modules\\\\php* /b /ad\")",
+      "Bash(cmd.exe /c \"E:\\\\OpenServer\\\\modules\\\\PHP-8.3\\\\php.exe artisan migrate\")",
+      "Bash(cmd.exe /c \"E:\\\\OpenServer\\\\modules\\\\PHP-8.3\\\\php.exe artisan migrate 2>&1\")",
+      "Bash(powershell.exe -Command \"Set-Location 'E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\backend'; & 'E:\\\\\\\\OpenServer\\\\\\\\modules\\\\\\\\PHP-8.3\\\\\\\\PHP\\\\\\\\php.exe' artisan migrate 2>&1\")",
+      "Bash(grep -l \"documents\\\\|checklist\\\\|reviews\" \"e:\\\\OpenServer\\\\home\\\\ba-ai.local\\\\backend\\\\routes\"/*.php)",
+      "Bash(/e/OpenServer/modules/php84/php.exe artisan *)"
     ]
   }
 }

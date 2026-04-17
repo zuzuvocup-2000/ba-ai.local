@@ -112,6 +112,14 @@ const api = {
   // ── Projects ────────────────────────────────────────────────────────────────
   getProjects: (token) => apiRequest('/projects', token),
 
+  getProject: (token, id) => apiRequest(`/projects/${id}`, token),
+
+  updateProjectCommonInfo: (token, id, data) =>
+    apiRequest(`/projects/${id}/common-info`, token, { method: 'PUT', body: data }),
+
+  generateCommonDoc: (token, projectId) =>
+    apiRequest(`/projects/${projectId}/generate-common-doc`, token, { method: 'POST' }),
+
   // ── Groups ──────────────────────────────────────────────────────────────────
   getGroups: (token, projectId) => apiRequest(`/groups?project_id=${projectId}`, token),
 
@@ -173,6 +181,11 @@ const api = {
       method: 'POST',
       body: { requirement_id: requirementId, document_type: documentType },
     }),
+
+  // force=false → chỉ gen doc chưa có (tiết kiệm token)
+  // force=true  → gen lại tất cả kể cả doc đã có
+  generateAllDocs: (token, requirementId, force = false) =>
+    apiRequest(`/requirements/${requirementId}/generate-all?force=${force}`, token, { method: 'POST' }),
 
   bulkGenerateDocuments: (token, groupId, documentTypes) =>
     apiRequest(`/groups/${groupId}/bulk-generate`, token, {

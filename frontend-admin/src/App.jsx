@@ -48,7 +48,7 @@ function App() {
   const updateAiSettings = async (items, token) => {
     return apiRequest('/settings', token, {
       method: 'PUT',
-      body: items,
+      body: { items },
     })
   }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AiChatController;
+use App\Http\Controllers\Api\V1\DocumentLineCommentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ChecklistController;
 use App\Http\Controllers\Api\V1\DocumentChangeProposalController;
@@ -132,6 +133,18 @@ Route::prefix('v1')->group(function () {
                 ->defaults('permission', 'projects.view')
                 ->middleware('permission');
 
+            Route::get('/projects/{project}', [ProjectController::class, 'show'])
+                ->defaults('permission', 'projects.view')
+                ->middleware('permission');
+
+            Route::put('/projects/{project}/common-info', [ProjectController::class, 'updateCommonInfo'])
+                ->defaults('permission', 'projects.edit')
+                ->middleware('permission');
+
+            Route::post('/projects/{project}/generate-common-doc', [DocumentController::class, 'generateCommonDoc'])
+                ->defaults('permission', 'documents.generate')
+                ->middleware('permission');
+
             // Feature Groups
             Route::get('/groups', [RequirementGroupController::class, 'index'])
                 ->defaults('permission', 'groups.view')
@@ -173,6 +186,10 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission');
             Route::put('/requirements/{requirement}/move-group', [RequirementController::class, 'moveGroup'])
                 ->defaults('permission', 'requirements.edit')
+                ->middleware('permission');
+
+            Route::post('/requirements/{requirement}/generate-all', [DocumentController::class, 'generateAll'])
+                ->defaults('permission', 'documents.generate')
                 ->middleware('permission');
 
             // Requirement Attachments
@@ -265,6 +282,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/checklist-items/{item}/review', [ChecklistController::class, 'reviewItem'])
                 ->defaults('permission', 'checklist.review')->middleware('permission');
             Route::post('/checklist-items/{item}/comments', [ChecklistController::class, 'addComment'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+
+            // Line Comments
+            Route::get('/documents/{document}/line-comments', [DocumentLineCommentController::class, 'index'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/documents/{document}/line-comments', [DocumentLineCommentController::class, 'store'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::post('/line-comments/{comment}/resolve', [DocumentLineCommentController::class, 'resolve'])
+                ->defaults('permission', 'documents.view')->middleware('permission');
+            Route::delete('/line-comments/{comment}', [DocumentLineCommentController::class, 'destroy'])
                 ->defaults('permission', 'documents.view')->middleware('permission');
         });
 

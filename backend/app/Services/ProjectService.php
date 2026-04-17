@@ -66,25 +66,39 @@ class ProjectService
         return $this->projectRepository->delete($project);
     }
 
+    public function updateCommonInfo(Project $project, array $payload): Project
+    {
+        $project->update([
+            'roles'       => $payload['roles'] ?? $project->roles,
+            'common_info' => $payload['common_info'] ?? $project->common_info,
+        ]);
+
+        return $project->fresh();
+    }
+
     public function toArray(Project $project): array
     {
         return [
-            'id' => $project->id,
-            'code' => $project->code,
-            'name' => $project->name,
+            'id'          => $project->id,
+            'code'        => $project->code,
+            'name'        => $project->name,
             'description' => $project->description,
-            'status' => $project->status,
-            'members' => $project->members
-                ->map(fn (User $member) => [
-                    'id' => $member->id,
-                    'name' => $member->name,
-                    'email' => $member->email,
-                    'role' => $member->roles->first()?->name,
-                    'project_role' => $member->pivot?->project_role ?? 'dev',
-                ])
-                ->values()
-                ->all(),
-            'created_at' => $project->created_at,
+            'status'      => $project->status,
+            'roles'       => $project->roles ?? [],
+            'common_info' => $project->common_info ?? [],
+            'members'     => $project->relationLoaded('members')
+                ? $project->members
+                    ->map(fn (User $member) => [
+                        'id'           => $member->id,
+                        'name'         => $member->name,
+                        'email'        => $member->email,
+                        'role'         => $member->roles->first()?->name,
+                        'project_role' => $member->pivot?->project_role ?? 'dev',
+                    ])
+                    ->values()
+                    ->all()
+                : [],
+            'created_at'  => $project->created_at,
         ];
     }
 

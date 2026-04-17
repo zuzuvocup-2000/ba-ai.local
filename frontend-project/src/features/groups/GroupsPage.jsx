@@ -10,6 +10,7 @@ import { Toast, useToast } from '../../components/ui/toast'
 import { GroupTree } from './GroupTree'
 import { GroupFormModal } from './GroupFormModal'
 import { RequirementsList } from '../requirements/RequirementsList'
+import { ProjectCommonInfoPanel } from '../projects/ProjectCommonInfoPanel'
 
 export function GroupsPage() {
   const { projectId, groupId } = useParams()
@@ -47,13 +48,18 @@ export function GroupsPage() {
     loadGroups()
   }, [loadGroups])
 
-  // Load project info from projects list
+  // Load full project info (includes roles + common_info)
   useEffect(() => {
-    if (!session?.token) return
-    api.getProjects(session.token)
-      .then((list) => setProject(list.find((p) => String(p.id) === String(projectId)) ?? null))
-      .catch(() => null)
-  }, [projectId])
+    if (!session?.token || !projectId) return
+    api.getProject(session.token, projectId)
+      .then((p) => setProject(p ?? null))
+      .catch(() => {
+        // Fallback: load from list
+        api.getProjects(session.token)
+          .then((list) => setProject(list.find((p) => String(p.id) === String(projectId)) ?? null))
+          .catch(() => null)
+      })
+  }, [projectId, session?.token])
 
   const handleSelect = (group) => {
     setSelectedGroupId(group.id)
@@ -163,11 +169,19 @@ export function GroupsPage() {
         {/* ── Main content ───────────────────────────────────────────── */}
         <main className="flex-1 overflow-y-auto bg-slate-50">
           {!selectedGroupId ? (
-            <EmptyState
-              icon={FolderTree}
-              title="Chọn nhóm tính năng"
-              description="Chọn một nhóm ở thanh bên trái để xem danh sách yêu cầu."
-              className="h-full"
+            <ProjectCommonInfoPanel
+              project={project}
+              onSaved={() => {
+                // Reload project để cập nhật roles/common_info mới nhất
+                if (session?.token && projectId) {
+                  api.getProject(session.token, projectId)
+                    .then((p) => setProject(p ?? null))
+                    .catch(() => null)
+                }
+              }}
+              onDocGenerated={(doc) => {
+                showToast(`Đã sinh tài liệu: ${doc.title}`, 'success')
+              }}
             />
           ) : (
             <RequirementsList
