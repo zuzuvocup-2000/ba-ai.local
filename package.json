@@ -1,0 +1,14 @@
+{
+  "name": "ba-ai-local",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n admin,project -c blue,magenta \"npm --prefix frontend-admin run dev\" \"npm --prefix frontend-project run dev\"",
+    "dev:admin": "npm --prefix frontend-admin run dev",
+    "dev:project": "npm --prefix frontend-project run dev",
+    "build": "concurrently -n admin,project -c blue,magenta \"npm --prefix frontend-admin run build\" \"npm --prefix frontend-project run build\"",
+    "install:all": "npm install && npm --prefix frontend-admin install && npm --prefix frontend-project install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
