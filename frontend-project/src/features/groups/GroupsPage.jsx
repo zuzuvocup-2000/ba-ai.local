@@ -10,7 +10,7 @@ import { Toast, useToast } from '../../components/ui/toast'
 import { GroupTree } from './GroupTree'
 import { GroupFormModal } from './GroupFormModal'
 import { RequirementsList } from '../requirements/RequirementsList'
-import { ProjectCommonInfoPanel } from '../projects/ProjectCommonInfoPanel'
+import { ProjectOverview } from '../projects/ProjectOverview'
 
 export function GroupsPage() {
   const { projectId, groupId } = useParams()
@@ -169,15 +169,15 @@ export function GroupsPage() {
         {/* ── Main content ───────────────────────────────────────────── */}
         <main className="flex-1 overflow-y-auto bg-slate-50">
           {!selectedGroupId ? (
-            <ProjectCommonInfoPanel
+            <ProjectOverview
               project={project}
               onSaved={() => {
-                // Reload project để cập nhật roles/common_info mới nhất
                 if (session?.token && projectId) {
                   api.getProject(session.token, projectId)
                     .then((p) => setProject(p ?? null))
                     .catch(() => null)
                 }
+                showToast('Đã lưu thông tin dự án', 'success')
               }}
               onDocGenerated={(doc) => {
                 showToast(`Đã sinh tài liệu: ${doc.title}`, 'success')

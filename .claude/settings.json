@@ -24,7 +24,10 @@
       "Bash(cmd.exe /c \"E:\\\\OpenServer\\\\modules\\\\PHP-8.3\\\\php.exe artisan migrate 2>&1\")",
       "Bash(powershell.exe -Command \"Set-Location 'E:\\\\\\\\OpenServer\\\\\\\\home\\\\\\\\ba-ai.local\\\\\\\\backend'; & 'E:\\\\\\\\OpenServer\\\\\\\\modules\\\\\\\\PHP-8.3\\\\\\\\PHP\\\\\\\\php.exe' artisan migrate 2>&1\")",
       "Bash(grep -l \"documents\\\\|checklist\\\\|reviews\" \"e:\\\\OpenServer\\\\home\\\\ba-ai.local\\\\backend\\\\routes\"/*.php)",
-      "Bash(/e/OpenServer/modules/php84/php.exe artisan *)"
+      "Bash(/e/OpenServer/modules/php84/php.exe artisan *)",
+      "Bash(npm ls *)",
+      "Bash(npm uninstall *)",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -match 'node|npm' } | Select-Object ProcessName, Id, StartTime | Format-Table -AutoSize)"
     ]
   }
 }
